@@ -1,0 +1,13 @@
+.siblingInformationWrapper{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.clgAppSalerow{
+    display: flex;
+    gap: 60px;
+}
+
+.clgAppSaleFieldCell{
+    width: 335px;
+}
