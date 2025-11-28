@@ -1,7 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import GenericNavTabs from "../../widgets/GenericNavTab/GenericNavTabs";
 import ApplicationStatus from "../../components/ApplicationStatus/components/ApplicationStatusToSetCategory/ApplicationStatusToSetCategory";
-import ApplicationSaleFormForSchool from "../../components/ApplicationSaleFormForSchool/ApplicationSaleFormForSchool";
 import styles from "./MainContainer.module.css";
 
 const MainContainer = () => {
@@ -25,7 +24,6 @@ const MainContainer = () => {
                 <Route path="/distribute" element={<div>Distribute content</div>} />
                 <Route path="/sale&confirm" element={<ApplicationStatus />} />
                 <Route path="/damage" element={<div>Damage content</div>} />
-                <Route path="/school-application-sale" element={<ApplicationSaleFormForSchool />} />
             </Routes>
         </div>
     );

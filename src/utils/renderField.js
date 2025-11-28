@@ -14,6 +14,7 @@ export const renderField = (fieldName, fieldMap, extraProps = {}) => {
         name={field.name}
         label={field.label}
         placeholder={field.placeholder}
+        {...extraProps}
       />
     );
   }

@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import styles from "../CollegeSaleForm/CollegeSaleForm.module.css";
 
 import ApplicationSaleDetails from "../../components/CollegSaleFormComponents/ApplicationDetails/ApplicationSaleDetails";
@@ -14,10 +15,13 @@ import leftArrowBlueColor from "../../assets/leftArrowBlueColor";
 import applicationSaleicon from "../../assets/applicationSaleicon";
 import Button from "../../widgets/Button/Button";
 
-const CollegeFastSale= () => {
+const CollegeFastSale = () => {
+  const location = useLocation();
+  const { applicationData } = location.state || {};
+
   return (
     <div className={styles.clgSalePageWrapper}>
-      <ApplicationSaleDetails />
+      <ApplicationSaleDetails data={applicationData} />
       <div className={styles.clgAppSaleFormMiddleSection}>
         <PersonalInformation />
         <ParentInformationForSchool />
@@ -26,18 +30,18 @@ const CollegeFastSale= () => {
       </div>
       <div className={styles.clgAppSaleButtonsWrapper}>
         <div className={styles.clgAppSaleButtons}>
-        <Button
-        buttonname={"Back"}
-        variant={"secondaryWithExtraPadding"}
-        lefticon={leftArrowBlueColor}
-        />
-        <Button
-        buttonname={"Application Sale"}
-        variant={"primary"}
-        type={"submit"}
-        lefticon={applicationSaleicon}
-        />
-      </div>
+          <Button
+            buttonname={"Back"}
+            variant={"secondaryWithExtraPadding"}
+            lefticon={leftArrowBlueColor}
+          />
+          <Button
+            buttonname={"Application Sale"}
+            variant={"primary"}
+            type={"submit"}
+            lefticon={applicationSaleicon}
+          />
+        </div>
       </div>
     </div>
   );

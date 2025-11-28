@@ -1,43 +1,47 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import styles from "./CollegeSaleForm.module.css";
 
-import ApplicationSaleDetails from "../../CollegSaleFormComponents/ApplicationDetails/ApplicationSaleDetails";
-import PersonalInformation from "../../CollegSaleFormComponents/PersonalInformation/PersonalInformation";
-import ParentInformation from "../../CollegSaleFormComponents/ParentInformation/ParentInformation";
-import OrientationInformation from "../../CollegSaleFormComponents/OrientationInformation/OrientaionInformation";
-import AddressInformation from "../../CollegSaleFormComponents/AddressInformation/AddressInformation";
-import ConcessionInformation from "../../CollegSaleFormComponents/ConcessionInformation/ConcessionInformation";
-import ExtraConcession from "../../CollegSaleFormComponents/ExtraConcession/ExtraConcession";
-import AcademicInformation from "../../CollegSaleFormComponents/AcademicInformation/AcademicInformation";
+import ApplicationSaleDetails from "../../components/CollegSaleFormComponents/ApplicationDetails/ApplicationSaleDetails";
+import PersonalInformation from "../../components/CollegSaleFormComponents/PersonalInformation/PersonalInformation";
+import ParentInformation from "../../components/CollegSaleFormComponents/ParentInformation/ParentInformation";
+import OrientationInformation from "../../components/CollegSaleFormComponents/OrientationInformation/OrientaionInformation";
+import AddressInformation from "../../components/CollegSaleFormComponents/AddressInformation/AddressInformation";
+import ConcessionInformation from "../../components/CollegSaleFormComponents/ConcessionInformation/ConcessionInformation";
+import ExtraConcession from "../../components/CollegSaleFormComponents/ExtraConcession/ExtraConcession";
+import AcademicInformation from "../../components/CollegSaleFormComponents/AcademicInformation/AcademicInformation";
 
 import leftArrowBlueColor from "../../assets/leftArrowBlueColor";
 import applicationSaleicon from "../../assets/applicationSaleicon";
 import Button from "../../widgets/Button/Button";
 
 const CollegeSalePage = () => {
+  const location = useLocation();
+  const { applicationData } = location.state || {};
+
   return (
     <div className={styles.clgSalePageWrapper}>
-      <ApplicationSaleDetails />
+      <ApplicationSaleDetails data={applicationData} />
       <div className={styles.clgAppSaleFormMiddleSection}>
         <PersonalInformation />
         <ParentInformation />
         <OrientationInformation />
-        <AcademicInformation/>
+        <AcademicInformation />
         <AddressInformation />
-        <ConcessionInformation /> 
-        <ExtraConcession/>
+        <ConcessionInformation />
+        <ExtraConcession />
       </div>
       <div className={styles.clgAppSaleButtons}>
         <Button
-        buttonname={"Back"}
-        variant={"secondaryWithExtraPadding"}
-        lefticon={leftArrowBlueColor}
+          buttonname={"Back"}
+          variant={"secondaryWithExtraPadding"}
+          lefticon={leftArrowBlueColor}
         />
         <Button
-        buttonname={"Application Sale"}
-        variant={"primary"}
-        type={"submit"}
-        lefticon={applicationSaleicon}
+          buttonname={"Application Sale"}
+          variant={"primary"}
+          type={"submit"}
+          lefticon={applicationSaleicon}
         />
       </div>
     </div>

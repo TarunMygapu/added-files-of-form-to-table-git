@@ -1,16 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./SearchResultCardWithStatus.module.css";
 import DivisionDesign from "../../assets/application-status/DivisionDesign.svg";
 import Statusbar from "../../widgets/StatusBar/Statusbar";
 import PopupcloseIcon from "../../assets/kindOfSaleIcons/PopupcloseIcon.svg";
 import ApplicationSaleIcon from "../../assets/kindOfSaleIcons/ApplicationSaleIcon.svg";
 import ApplicationFastSaleIcon from "../../assets/kindOfSaleIcons/ApplicationFastSaleIcon.svg";
- 
+
 const SearchResultCardWithStatus = ({ data, maxResults = 5, onCardClick, category = 'school' }) => {
   // Permission check removed - always allow clicking
   const canClickCard = true;
   const [hoveredCard, setHoveredCard] = useState(null);
   const hoverTimeoutRef = useRef(null);
+
+  const navigate = useNavigate();
 
   // Only enable hover menu for college category
   const isCollege = category?.toLowerCase()?.trim() === 'college';
@@ -28,7 +31,7 @@ const SearchResultCardWithStatus = ({ data, maxResults = 5, onCardClick, categor
     (item) => item.displayStatus
   );
   const filteredData = displayData.slice(0, maxResults);
-  
+
   const closeMenu = () => {
     // Clear any pending timeout
     if (hoverTimeoutRef.current) {
@@ -44,8 +47,10 @@ const SearchResultCardWithStatus = ({ data, maxResults = 5, onCardClick, categor
     // You can add navigation logic here based on the option
     if (option === 'Sale') {
       // Navigate to sale page
+      navigate('/college-application-sale', { state: { applicationData: item } });
     } else if (option === 'Fast Sale') {
       // Navigate to fast sale page
+      navigate('/college-application-fast-sale', { state: { applicationData: item } });
     }
     closeMenu(); // Close menu after selection
   };
@@ -61,7 +66,7 @@ const SearchResultCardWithStatus = ({ data, maxResults = 5, onCardClick, categor
             const isDisabledByPermission = !canClickCard;
             const isDisabled = isDisabledByStatus || isDisabledByPermission;
             const isHovered = hoveredCard === (item.id || item.applicationNo);
-            
+
             const handleMouseEnter = () => {
               if (isCollege && !isDisabled) {
                 // Clear any existing timeout
@@ -90,56 +95,56 @@ const SearchResultCardWithStatus = ({ data, maxResults = 5, onCardClick, categor
               >
                 {/* Overlay - only for college */}
                 {isHovered && isCollege && (
-                  <div 
+                  <div
                     className={styles.Search_Cards_recent_search__overlay}
                     onClick={closeMenu}
                   />
                 )}
-                
+
                 {/* Card */}
                 <div
                   className={`${styles.Search_Cards_recent_search__card} ${isDisabled ? styles.disabled : ''} ${isHovered && isCollege ? styles.card_hovered : ''}`}
-                onClick={() => !isDisabled && onCardClick && onCardClick(item)}
-                style={{
-                  cursor: isDisabled ? 'not-allowed' : 'pointer',
-                  opacity: isDisabled ? 0.6 : 1
-                }}
-              >
-              <figure className={styles.Search_Cards_recent_search__image}></figure>
-              <p className={styles.Search_Cards_recent_search__id}>
-                {item.applicationNo}
-              </p>
-              <p className={styles.Search_Cards_recent_search__Campus}>
-                {item.campus}
-              </p>
-              <p className={styles.Search_Cards_recent_search__Zone}>
-                {item.zone}
-              </p>
-              <figure className={styles.Search_Cards_recent_search__division}>
-                <img src={DivisionDesign} alt="Division Design Icon" />
-              </figure>
-              <div className={styles.Search_Cards_recent_search__status}>
-                <Statusbar
-                  isSold={item.displayStatus === "Sold" || item.displayStatus === "Confirmed"}
-                  isConfirmed={item.displayStatus === "Confirmed"}
-                  isDamaged={item.displayStatus === "Damaged"}
-                  singleStar={item.displayStatus === "Damaged"}
-                />
-              </div>
+                  onClick={() => !isDisabled && onCardClick && onCardClick(item)}
+                  style={{
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                    opacity: isDisabled ? 0.6 : 1
+                  }}
+                >
+                  <figure className={styles.Search_Cards_recent_search__image}></figure>
+                  <p className={styles.Search_Cards_recent_search__id}>
+                    {item.applicationNo}
+                  </p>
+                  <p className={styles.Search_Cards_recent_search__Campus}>
+                    {item.campus}
+                  </p>
+                  <p className={styles.Search_Cards_recent_search__Zone}>
+                    {item.zone}
+                  </p>
+                  <figure className={styles.Search_Cards_recent_search__division}>
+                    <img src={DivisionDesign} alt="Division Design Icon" />
+                  </figure>
+                  <div className={styles.Search_Cards_recent_search__status}>
+                    <Statusbar
+                      isSold={item.displayStatus === "Sold" || item.displayStatus === "Confirmed"}
+                      isConfirmed={item.displayStatus === "Confirmed"}
+                      isDamaged={item.displayStatus === "Damaged"}
+                      singleStar={item.displayStatus === "Damaged"}
+                    />
+                  </div>
                 </div>
 
                 {/* Close Icon - between card and menu */}
                 {!isDisabled && isCollege && (
-                  <div 
+                  <div
                     className={`${styles.Search_Cards_recent_search__close_icon_wrapper} ${isHovered ? styles.visible : ''}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       closeMenu();
                     }}
                   >
-                    <img 
-                      src={PopupcloseIcon} 
-                      alt="Close" 
+                    <img
+                      src={PopupcloseIcon}
+                      alt="Close"
                       className={styles.Search_Cards_recent_search__close_icon}
                     />
                   </div>
@@ -166,7 +171,7 @@ const SearchResultCardWithStatus = ({ data, maxResults = 5, onCardClick, categor
                     </div>
                   </div>
                 )}
-            </div>
+              </div>
             );
           })
         ) : (
@@ -178,6 +183,5 @@ const SearchResultCardWithStatus = ({ data, maxResults = 5, onCardClick, categor
     </div>
   );
 };
- 
+
 export default SearchResultCardWithStatus;
- 

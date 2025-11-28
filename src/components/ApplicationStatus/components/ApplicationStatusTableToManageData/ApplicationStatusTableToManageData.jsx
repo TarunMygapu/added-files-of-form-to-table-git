@@ -7,7 +7,7 @@ import './ApplicationStatusTableToManageData.module.css';
 const normalizeStatus = (status) => {
     if (!status) return '';
     const normalized = status.toLowerCase().trim();
-    
+
     // Map all variations to standard keys
     switch (normalized) {
         case 'sold':
@@ -77,19 +77,19 @@ const formatDate = (date) => {
     if (!date) return '';
     const dateObj = typeof date === 'string' ? new Date(date) : date;
     if (isNaN(dateObj.getTime())) return '';
-    
+
     const day = dateObj.getDate();
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                       'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'];
     const month = monthNames[dateObj.getMonth()];
     const year = dateObj.getFullYear();
-    
+
     return `${day},${month} ${year}`;
 };
 
-const ApplicationStatusTableToManageData = ({ 
-    studentCategory, 
-    selectedCampus, 
+const ApplicationStatusTableToManageData = ({
+    studentCategory,
+    selectedCampus,
     pageIndex: externalPageIndex,
     setPageIndex: externalSetPageIndex,
     onDataChange,
@@ -99,7 +99,7 @@ const ApplicationStatusTableToManageData = ({
     handleNavigateToSalePage
 }) => {
     const [internalPageIndex, setInternalPageIndex] = useState(0);
-    
+
     // Use external pageIndex if provided, otherwise use internal state
     const pageIndex = externalPageIndex !== undefined ? externalPageIndex : internalPageIndex;
     const setPageIndex = externalSetPageIndex || setInternalPageIndex;
@@ -111,16 +111,16 @@ const ApplicationStatusTableToManageData = ({
         { accessorKey: "campus", header: "Campus" },
         { accessorKey: "dgm", header: "DGM" },
         { accessorKey: "zone", header: "Zone" },
-        { 
-            accessorKey: "date", 
+        {
+            accessorKey: "date",
             header: "Date",
             cell: ({ getValue }) => {
                 const date = getValue();
                 return formatDate(date);
             }
         },
-        { 
-            accessorKey: "status", 
+        {
+            accessorKey: "status",
             header: "Status",
             cell: ({ getValue }) => {
                 const status = getValue();
@@ -158,7 +158,7 @@ const ApplicationStatusTableToManageData = ({
 
         // Apply campus filter
         if (selectedCampus && selectedCampus !== "All Campuses") {
-            filtered = filtered.filter(item => 
+            filtered = filtered.filter(item =>
                 item.campus === selectedCampus
             );
         }
@@ -177,35 +177,35 @@ const ApplicationStatusTableToManageData = ({
                 filtered = filtered.filter((item) => {
                     // Use normalizeStatus function to properly normalize status values
                     const normalizedStatus = normalizeStatus(item.status);
-                    
+
                     // Map status values to match filter categories
                     let matches = false;
-                    
+
                     // Sold filter: "Sold" status
                     if (studentCategory.sold && normalizedStatus === "sold") {
                         matches = true;
                     }
-                    
+
                     // Confirmed filter: "Confirmed" status
                     if (studentCategory.confirmed && normalizedStatus === "confirmed") {
                         matches = true;
                     }
-                    
+
                     // Fast Sold filter (unsold filter maps to Fast Sold)
                     if (studentCategory.unsold && normalizedStatus === "fastsold") {
                         matches = true;
                     }
-                    
+
                     // With PRO filter: "With PRO", "Available" statuses
                     if (studentCategory.withPro && normalizedStatus === "withpro") {
                         matches = true;
                     }
-                    
+
                     // Damaged filter: "Damaged" status
                     if (studentCategory.damaged && normalizedStatus === "damaged") {
                         matches = true;
                     }
-                    
+
                     return matches;
                 });
             }
@@ -228,9 +228,9 @@ const ApplicationStatusTableToManageData = ({
 
     const handleSelectRow = (row, checked) => {
         // Update the isSelected property of the row in allData
-        setAllData(prevData => 
-            prevData.map(item => 
-                item.applicationNo === row.applicationNo 
+        setAllData(prevData =>
+            prevData.map(item =>
+                item.applicationNo === row.applicationNo
                     ? { ...item, isSelected: checked }
                     : item
             )
@@ -240,7 +240,7 @@ const ApplicationStatusTableToManageData = ({
     const handleNavigateToSale = (row) => {
         // Check category and handle accordingly
         const normalizedCategory = category?.toLowerCase()?.trim();
-        
+
         if (normalizedCategory === 'college') {
             // For college: show search card for this application
             if (setSearch && row?.applicationNo) {

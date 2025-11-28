@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import styles from "./SchoolSale.module.css";
 import ApplicationSaleDetails from "../../components/CollegSaleFormComponents/ApplicationDetails/ApplicationSaleDetails";
 import Button from "../../widgets/Button/Button";
@@ -9,31 +10,34 @@ import ParentInformationForSchool from "../../components/CollegSaleFormComponent
 import OrientationInformationForSchool from "../../components/CollegSaleFormComponents/OrientationInformation/OrientationInformationForSchool";
 import AddressInformation from "../../components/CollegSaleFormComponents/AddressInformation/AddressInformation";
 
-const SchoolSale = ()=>{
-    return(
-         <div className={styles.clgSalePageWrapper}>
-      <ApplicationSaleDetails />
+const SchoolSale = () => {
+  const location = useLocation();
+  const { applicationData } = location.state || {};
+
+  return (
+    <div className={styles.clgSalePageWrapper}>
+      <ApplicationSaleDetails data={applicationData} />
       <div className={styles.clgAppSaleFormMiddleSection}>
-        <PersonalInformationForSchool/>
-        <ParentInformationForSchool/>
-        <OrientationInformationForSchool/>
-        <AddressInformation/>
+        <PersonalInformationForSchool />
+        <ParentInformationForSchool />
+        <OrientationInformationForSchool />
+        <AddressInformation />
       </div>
       <div className={styles.clgAppSaleButtons}>
         <Button
-        buttonname={"Back"}
-        variant={"secondaryWithExtraPadding"}
-        lefticon={leftArrowBlueColor}
+          buttonname={"Back"}
+          variant={"secondaryWithExtraPadding"}
+          lefticon={leftArrowBlueColor}
         />
         <Button
-        buttonname={"Application Sale"}
-        variant={"primary"}
-        type={"submit"}
-        lefticon={applicationSaleicon}
+          buttonname={"Application Sale"}
+          variant={"primary"}
+          type={"submit"}
+          lefticon={applicationSaleicon}
         />
       </div>
     </div>
-    )
+  )
 }
 
 export default SchoolSale;

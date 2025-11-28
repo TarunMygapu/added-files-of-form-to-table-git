@@ -1,14 +1,14 @@
 import React from "react";
 import styles from "./ApplicationSaleDetails.module.css";
-import leftArrow from "../../assets/Frame 1410092236.svg";
-import leftArrow2 from "../../assets//material-symbols_arrow-back-rounded.svg";
+import Frame from "../../../assets/Frame 1410092236.svg";
+import backArrow from "../../../assets/material-symbols_arrow-back-rounded.svg";
 
 const ApplicationSaleDetails = () => {
-    return(
+    return (
         <div className={styles.clgAppSaleDetailsTop}>
             <div className={styles.clgAppSaleDetailsLeft}>
                 <figure>
-                    <img src={leftArrow}/>
+                    <img src={backArrow} />
                 </figure>
                 <div className={styles.clgAppSaleDetailsHeadingStepper}>
                     <p className={styles.clgAppSaleDetails}>Application Sale</p>

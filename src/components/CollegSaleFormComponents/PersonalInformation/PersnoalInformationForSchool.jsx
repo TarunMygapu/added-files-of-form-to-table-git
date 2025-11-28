@@ -5,8 +5,8 @@ import {
   personalInfoFieldsLayoutForSchool,
 } from "./personalInformationFields";
 
-import UploadPicture from "../../widgets/UploadPicture/UploadPicture";
-import {renderField} from "../../../utils/renderField";
+import UploadPicture from "../../../widgets/UploadPicture/UploadPicture";
+import { renderField } from "../../../utils/renderField";
 
 const PersonalInformationForSchool = () => {
   const fieldMap = personalInfoFields.reduce((acc, f) => {
@@ -28,7 +28,7 @@ const PersonalInformationForSchool = () => {
 
       <div className={styles.clgAppSalePersonalInfoBottom}>
         <div className={styles.clgAppSalePersonalNameAndUploadPic}>
-          
+
           {/* TOP 2 ROWS */}
           <div className={styles.clgAppSaleTopLeftFields}>
             {topTwoRows.map((row) => (

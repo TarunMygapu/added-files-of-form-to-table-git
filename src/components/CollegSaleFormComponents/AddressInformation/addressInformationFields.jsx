@@ -1,4 +1,4 @@
-import SearchboxWithLabel from "../../widgets/Searchbox/SearchboxWithLabel";
+import SearchboxWithLabel from "../../../widgets/Searchbox/SearchboxWithLabel";
 
 export const addressInformationFields = [
   {

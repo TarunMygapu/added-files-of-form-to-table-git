@@ -9,9 +9,9 @@ import {
 import SiblingInformation from "./SiblingInformation";
 
 import { renderField } from "../../../utils/renderField";
-import Button from "../../widgets/Button/Button";
-import uploadAnnexureIcon from "../../assets/uploadAnnexureIcon";
-import plusIconBlueColor from "../../assets/plusIconBlueColor";
+import Button from "../../../widgets/Button/Button";
+import uploadAnnexureIcon from "../../../assets/uploadAnnexureIcon";
+import plusIconBlueColor from "../../../assets/plusIconBlueColor";
 
 const ParentInformation = () => {
   const [showSibling, setShowSibling] = useState(true);
@@ -41,7 +41,7 @@ const ParentInformation = () => {
     ? "Add Another Sibling"
     : "Add Sibling";
 
-    const buttonWidth = showSibling ? "240px" : "194px";
+  const buttonWidth = showSibling ? "240px" : "194px";
 
   return (
     <div className={styles.clgAppSalePersonalInforWrapper}>
