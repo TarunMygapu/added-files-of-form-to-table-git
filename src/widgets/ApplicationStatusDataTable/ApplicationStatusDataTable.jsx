@@ -101,13 +101,17 @@ const ApplicationStatusDataTable = ({
       case "paymentpending":
         onNavigateToConfirmation?.(rowData);
         break;
-      case "damaged":
-        onNavigateToDamage?.(rowData);
-        break;
       case "fast sale":
       case "fastsale":
       case "fast_sale":
-        onNavigateToSale?.(rowData); // Navigate to sale for fast sale completion
+      case "fast sold":
+      case "fastsold":
+      case "fast_sold":
+        onNavigateToSale?.(rowData); // Navigate to sale for fast sold completion
+        break;
+      case "unavailable":
+      case "damaged":
+        onNavigateToDamage?.(rowData);
         break;
       case "confirmed":
         // Button is disabled for confirmed status, no action needed
@@ -123,9 +127,6 @@ const ApplicationStatusDataTable = ({
     const normalizedStatus = status?.toLowerCase()?.trim();
 
     switch (normalizedStatus) {
-      case "damaged":
-      case "broken":
-        return "Update";
       case "sold":
       case "not confirmed":
         return "To Confirm";
@@ -141,9 +142,14 @@ const ApplicationStatusDataTable = ({
       case "fast sale":
       case "fastsale":
       case "fast_sale":
+      case "fast sold":
+      case "fastsold":
+      case "fast_sold":
         return "To Complete";
       case "confirmed":
       case "approved":
+      case "unavailable":
+      case "damaged":
         return "Update";
       default:
         return "Update";

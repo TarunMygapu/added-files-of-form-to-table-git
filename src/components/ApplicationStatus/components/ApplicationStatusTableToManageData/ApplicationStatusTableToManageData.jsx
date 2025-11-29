@@ -21,6 +21,8 @@ const normalizeStatus = (status) => {
         case 'damaged':
         case 'broken':
             return 'damaged';
+        case 'unavailable':
+            return 'unavailable';
         case 'fast sale':
         case 'fastsale':
         case 'fast_sale':
@@ -46,10 +48,6 @@ const statusConfig = {
         cssClass: styles.withpro,
         displayStatus: 'With PRO'
     },
-    damaged: {
-        cssClass: styles.damaged,
-        displayStatus: 'Damaged'
-    },
     fastsold: {
         cssClass: styles.fastsold,
         displayStatus: 'Fast Sold'
@@ -57,6 +55,14 @@ const statusConfig = {
     confirmed: {
         cssClass: styles.confirmed,
         displayStatus: 'Confirmed'
+    },
+    unavailable: {
+        cssClass: styles.unavailable || '',
+        displayStatus: 'Unavailable'
+    },
+    damaged: {
+        cssClass: styles.damaged || '',
+        displayStatus: 'Damaged'
     }
 };
 
@@ -136,20 +142,22 @@ const ApplicationStatusTableToManageData = ({
 
     // Sample data - converted to state so checkbox selection can be updated
     const [allData, setAllData] = useState([
-        { applicationNo: "APP001", pro: "PRO1", campus: "Campus A", dgm: "DGM1", zone: "Zone 1", date: new Date(2025, 7, 14), status: "With PRO", isSelected: false },
-        { applicationNo: "APP002", pro: "PRO2", campus: "Campus B", dgm: "DGM2", zone: "Zone 2", date: new Date(2025, 7, 15), status: "Sold", isSelected: false },
-        { applicationNo: "APP003", pro: "PRO3", campus: "Campus C", dgm: "DGM3", zone: "Zone 3", date: new Date(2025, 7, 16), status: "Confirmed", isSelected: false },
-        { applicationNo: "APP004", pro: "PRO4", campus: "Campus D", dgm: "DGM4", zone: "Zone 4", date: new Date(2025, 7, 17), status: "Fast sold", isSelected: false },
-        { applicationNo: "APP005", pro: "PRO5", campus: "Campus E", dgm: "DGM5", zone: "Zone 5", date: new Date(2025, 7, 18), status: "Damaged", isSelected: false },
-        { applicationNo: "APP006", pro: "PRO6", campus: "Campus F", dgm: "DGM6", zone: "Zone 6", date: new Date(2025, 7, 19), status: "With PRO", isSelected: false },
-        { applicationNo: "APP007", pro: "PRO7", campus: "Campus G", dgm: "DGM7", zone: "Zone 7", date: new Date(2025, 7, 20), status: "Fast Sold", isSelected: false },
-        { applicationNo: "APP008", pro: "PRO1", campus: "Campus A", dgm: "DGM1", zone: "Zone 1", date: new Date(2025, 7, 21), status: "With PRO", isSelected: false },
-        { applicationNo: "APP009", pro: "PRO2", campus: "Campus B", dgm: "DGM2", zone: "Zone 2", date: new Date(2025, 7, 22), status: "Sold", isSelected: false },
-        { applicationNo: "APP010", pro: "PRO3", campus: "Campus C", dgm: "DGM3", zone: "Zone 3", date: new Date(2025, 7, 23), status: "Fast sold", isSelected: false },
-        { applicationNo: "APP011", pro: "PRO4", campus: "Campus D", dgm: "DGM4", zone: "Zone 4", date: new Date(2025, 7, 24), status: "With PRO", isSelected: false },
-        { applicationNo: "APP012", pro: "PRO5", campus: "Campus E", dgm: "DGM5", zone: "Zone 5", date: new Date(2025, 7, 25), status: "Damaged", isSelected: false },
-        { applicationNo: "APP013", pro: "PRO6", campus: "Campus F", dgm: "DGM6", zone: "Zone 6", date: new Date(2025, 7, 26), status: "Confirmed", isSelected: false },
-        { applicationNo: "APP014", pro: "PRO7", campus: "Campus G", dgm: "DGM7", zone: "Zone 7", date: new Date(2025, 7, 27), status: "Fast Sale", isSelected: false },
+        { applicationNo: "281237494528", pro: "PRO1", campus: "Campus A", dgm: "DGM1", zone: "Zone 1", date: new Date(2025, 7, 14), status: "With PRO", isSelected: false },
+        { applicationNo: "656578689084", pro: "PRO2", campus: "Campus B", dgm: "DGM2", zone: "Zone 2", date: new Date(2025, 7, 15), status: "Sold", isSelected: false },
+        { applicationNo: "512478963001", pro: "PRO3", campus: "Campus C", dgm: "DGM3", zone: "Zone 3", date: new Date(2025, 7, 16), status: "Confirmed", isSelected: false },
+        { applicationNo: "351532456789", pro: "PRO4", campus: "Campus D", dgm: "DGM4", zone: "Zone 4", date: new Date(2025, 7, 17), status: "Fast sold", isSelected: false },
+        { applicationNo: "354685236974", pro: "PRO5", campus: "Campus E", dgm: "DGM5", zone: "Zone 5", date: new Date(2025, 7, 18), status: "Unavailable", isSelected: false },
+        { applicationNo: "321356251551", pro: "PRO6", campus: "Campus F", dgm: "DGM6", zone: "Zone 6", date: new Date(2025, 7, 19), status: "Damaged", isSelected: false },
+        { applicationNo: "165346565954", pro: "PRO7", campus: "Campus G", dgm: "DGM7", zone: "Zone 7", date: new Date(2025, 7, 20), status: "Fast Sold", isSelected: false },
+        { applicationNo: "546846535454", pro: "PRO1", campus: "Campus A", dgm: "DGM1", zone: "Zone 1", date: new Date(2025, 7, 21), status: "With PRO", isSelected: false },
+        { applicationNo: "515656546565", pro: "PRO2", campus: "Campus B", dgm: "DGM2", zone: "Zone 2", date: new Date(2025, 7, 22), status: "Sold", isSelected: false },
+        { applicationNo: "135465151535", pro: "PRO3", campus: "Campus C", dgm: "DGM3", zone: "Zone 3", date: new Date(2025, 7, 23), status: "Fast sold", isSelected: false },
+        { applicationNo: "556165165151", pro: "PRO4", campus: "Campus D", dgm: "DGM4", zone: "Zone 4", date: new Date(2025, 7, 24), status: "With PRO", isSelected: false },
+        { applicationNo: "165415165165", pro: "PRO5", campus: "Campus E", dgm: "DGM5", zone: "Zone 5", date: new Date(2025, 7, 25), status: "Sold", isSelected: false },
+        { applicationNo: "316546515646", pro: "PRO6", campus: "Campus F", dgm: "DGM6", zone: "Zone 6", date: new Date(2025, 7, 26), status: "Confirmed", isSelected: false },
+        { applicationNo: "326545153465", pro: "PRO7", campus: "Campus G", dgm: "DGM7", zone: "Zone 7", date: new Date(2025, 7, 27), status: "Fast Sold", isSelected: false },
+        { applicationNo: "321351562315", pro: "PRO8", campus: "Campus H", dgm: "DGM8", zone: "Zone 8", date: new Date(2025, 7, 28), status: "Unavailable", isSelected: false },
+        { applicationNo: "148656846498", pro: "PRO9", campus: "Campus I", dgm: "DGM9", zone: "Zone 9", date: new Date(2025, 7, 29), status: "Damaged", isSelected: false },
     ]);
 
     // Apply filters to data
@@ -170,8 +178,7 @@ const ApplicationStatusTableToManageData = ({
                 !studentCategory.sold &&
                 !studentCategory.confirmed &&
                 !studentCategory.unsold &&
-                !studentCategory.withPro &&
-                !studentCategory.damaged;
+                !studentCategory.withPro;
 
             if (!isAllSelected) {
                 filtered = filtered.filter((item) => {
@@ -198,11 +205,6 @@ const ApplicationStatusTableToManageData = ({
 
                     // With PRO filter: "With PRO", "Available" statuses
                     if (studentCategory.withPro && normalizedStatus === "withpro") {
-                        matches = true;
-                    }
-
-                    // Damaged filter: "Damaged" status
-                    if (studentCategory.damaged && normalizedStatus === "damaged") {
                         matches = true;
                     }
 
@@ -240,9 +242,18 @@ const ApplicationStatusTableToManageData = ({
     const handleNavigateToSale = (row) => {
         // Check category and handle accordingly
         const normalizedCategory = category?.toLowerCase()?.trim();
+        const normalizedStatus = normalizeStatus(row?.status);
 
-        if (normalizedCategory === 'college') {
-            // For college: show search card for this application
+        // Special handling for Fast Sold status when category is college
+        if (normalizedCategory === 'college' && normalizedStatus === 'fastsold') {
+            // Navigate to CollegeSaleForm for Fast Sold completion
+            if (navigate && row?.applicationNo) {
+                navigate('/college-application-sale', {
+                    state: { applicationData: row }
+                });
+            }
+        } else if (normalizedCategory === 'college') {
+            // For college (other statuses): show search card for this application
             if (setSearch && row?.applicationNo) {
                 setSearch(row.applicationNo);
             }
@@ -259,11 +270,33 @@ const ApplicationStatusTableToManageData = ({
     };
 
     const handleNavigateToConfirmation = (row) => {
-        console.log("Navigate to confirmation:", row);
+        // Check category and handle accordingly
+        const normalizedCategory = category?.toLowerCase()?.trim();
+        
+        if (normalizedCategory === 'college') {
+            // For college: navigate to college confirmation container
+            if (navigate && row?.applicationNo) {
+                navigate('/college-application-confirmation', {
+                    state: { applicationData: row }
+                });
+            }
+        } else {
+            // For school: navigate to school confirmation container
+            if (navigate && row?.applicationNo) {
+                navigate('/school-application-confirmation', {
+                    state: { applicationData: row }
+                });
+            }
+        }
     };
 
     const handleNavigateToDamage = (row) => {
-        console.log("Navigate to damage:", row);
+        // Navigate to damaged form for both college and school
+        if (navigate && row?.applicationNo) {
+            navigate('/damaged-form', {
+                state: { applicationData: row }
+            });
+        }
     };
 
     return (

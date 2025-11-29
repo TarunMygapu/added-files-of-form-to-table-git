@@ -129,14 +129,15 @@ table tbody tr:nth-child(odd) {
 /* Update button */
 .update_btn {
   padding: 5px;
-  border-radius: 39px;
+  border-radius: 30px;
   border: 1px solid #D8D8D8;
   background: #E2E2E2;
   cursor: pointer;
   color: #252C32;
   font-size: 12px;
   font-weight: 400;
-  width: 78px;
+  white-space: nowrap;
+  width: 80px;
 }
  
 .update_btn:disabled {
@@ -187,6 +188,13 @@ table tbody tr:nth-child(odd) {
   border: 1px solid #61660D;
   background: #DBFFD8;
   color: #61660D;
+}
+
+/* Unavailable */
+.unavailable {
+  border: 1px solid #434141;
+  background: #c0bfbf;
+  color: #434141;
 }
 
  
