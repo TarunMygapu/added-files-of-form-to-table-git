@@ -41,6 +41,8 @@ const ApplicationStatus = () => {
     confirmed: false,
     unsold: false,
     withPro: false,
+    damaged: false,
+    unavailable: false,
   });
 
   // Baseline refs to detect if user has applied any filter changes
@@ -51,6 +53,8 @@ const ApplicationStatus = () => {
     confirmed: false,
     unsold: false,
     withPro: false,
+    damaged: false,
+    unavailable: false,
   });
 
   const [isFilterApplied, setIsFilterApplied] = useState(false);
@@ -105,7 +109,9 @@ const ApplicationStatus = () => {
       !studentCategory.sold &&
       !studentCategory.confirmed &&
       !studentCategory.unsold &&
-      !studentCategory.withPro;
+      !studentCategory.withPro &&
+      !studentCategory.damaged &&
+      !studentCategory.unavailable;
    
     if (!isAllSelected) {
       filtered = filtered.filter((item) => {
@@ -115,7 +121,9 @@ const ApplicationStatus = () => {
           (studentCategory.sold && status === "Sold") ||
           (studentCategory.confirmed && status === "Confirmed") ||
           (studentCategory.unsold && status === "Unsold") ||
-          (studentCategory.withPro && status === "With PRO")
+          (studentCategory.withPro && status === "With PRO") ||
+          (studentCategory.damaged && status === "Damaged") ||
+          (studentCategory.unavailable && status === "Unavailable")
         );
         return matches;
       });
@@ -131,7 +139,9 @@ const ApplicationStatus = () => {
       a.sold !== b.sold ||
       a.confirmed !== b.confirmed ||
       a.unsold !== b.unsold ||
-      a.withPro !== b.withPro;
+      a.withPro !== b.withPro ||
+      a.damaged !== b.damaged ||
+      a.unavailable !== b.unavailable;
 
     const applied =
       selectedCampus !== initialCampusRef.current ||

@@ -178,7 +178,9 @@ const ApplicationStatusTableToManageData = ({
                 !studentCategory.sold &&
                 !studentCategory.confirmed &&
                 !studentCategory.unsold &&
-                !studentCategory.withPro;
+                !studentCategory.withPro &&
+                !studentCategory.damaged &&
+                !studentCategory.unavailable;
 
             if (!isAllSelected) {
                 filtered = filtered.filter((item) => {
@@ -205,6 +207,16 @@ const ApplicationStatusTableToManageData = ({
 
                     // With PRO filter: "With PRO", "Available" statuses
                     if (studentCategory.withPro && normalizedStatus === "withpro") {
+                        matches = true;
+                    }
+
+                    // Damaged filter: "Damaged" status
+                    if (studentCategory.damaged && normalizedStatus === "damaged") {
+                        matches = true;
+                    }
+
+                    // Unavailable filter: "Unavailable" status
+                    if (studentCategory.unavailable && normalizedStatus === "unavailable") {
                         matches = true;
                     }
 

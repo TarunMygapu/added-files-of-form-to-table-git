@@ -33,6 +33,8 @@ const FilterPanel = ({
           confirmed: false,
           unsold: false,
           withPro: false,
+          damaged: false,
+          unavailable: false,
         };
       } else {
         const newState = { ...prev, [category]: !prev[category], all: false };
@@ -40,7 +42,9 @@ const FilterPanel = ({
           !newState.sold &&
           !newState.confirmed &&
           !newState.unsold &&
-          !newState.withPro;
+          !newState.withPro &&
+          !newState.damaged &&
+          !newState.unavailable;
         if (noOtherCategoriesSelected) {
           newState.all = true;
         }
@@ -57,6 +61,8 @@ const FilterPanel = ({
       confirmed: false,
       unsold: false,
       withPro: false,
+      damaged: false,
+      unavailable: false,
     });
     setActiveTab("campus");
   };
@@ -87,6 +93,8 @@ const FilterPanel = ({
             { key: "confirmed", label: "Confirmed" },
             { key: "unsold", label: "Fast Sold" },
             { key: "withPro", label: "With PRO" },
+            { key: "damaged", label: "Damaged" },
+            { key: "unavailable", label: "Unavailable" },
           ].map(({ key, label }) => (
             <div className={styles.filter_panel__category_item} key={key}>
               <input
