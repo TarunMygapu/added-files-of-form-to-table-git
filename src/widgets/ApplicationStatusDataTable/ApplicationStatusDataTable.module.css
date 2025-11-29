@@ -111,7 +111,9 @@ table tbody tr:nth-child(odd) {
  
 /* ✅ Custom Checkbox */
 .custom_checkbox {
-  /* appearance: none; */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   width: 16px;
   height: 16px;
   border: 1.5px solid #aaa;
@@ -124,6 +126,40 @@ table tbody tr:nth-child(odd) {
   vertical-align: middle;  
   pointer-events: auto;
   z-index: 10;
+}
+
+.custom_checkbox:checked {
+  background-color: #3425FF;
+  border-color: #3425FF;
+}
+
+.custom_checkbox:checked::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.custom_checkbox:indeterminate {
+  background-color: #3425FF;
+  border-color: #3425FF;
+}
+
+.custom_checkbox:indeterminate::after {
+  content: "−";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
 }
  
 /* Update button */
