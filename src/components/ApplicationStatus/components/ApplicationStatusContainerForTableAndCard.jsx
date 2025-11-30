@@ -15,7 +15,8 @@ const ApplicationStatusContent = ({
   category,
   setSearch,
   navigate,
-  handleNavigateToSalePage
+  handleNavigateToSalePage,
+  employeeCampusId
 }) => {
   // If there's a search query with at least 3 characters, show search results
   if (search && search.length >= 3) {
@@ -45,6 +46,7 @@ const ApplicationStatusContent = ({
       setSearch={setSearch}
       navigate={navigate}
       handleNavigateToSalePage={handleNavigateToSalePage}
+      employeeCampusId={employeeCampusId}
     />
   );
 };

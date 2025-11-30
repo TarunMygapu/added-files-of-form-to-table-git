@@ -292,3 +292,248 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
   return payload;
 };
 
+/**
+ * Submit college application sale data
+ * @param {Object} payload - The complete payload matching the API structure
+ * @returns {Promise} - Axios response
+ */
+export const submitCollegeApplicationSale = async (payload) => {
+  try {
+    const endpoint = '/student_fast_sale/college-application-sale';
+    const fullUrl = `${BASE_URL}${endpoint}`;
+    console.log('🌐 Submitting to:', fullUrl);
+    console.log('📦 Payload size:', JSON.stringify(payload).length, 'bytes');
+    
+    const response = await apiClient.post(endpoint, payload);
+    console.log('✅ Response received:', response.status, response.statusText);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error submitting college application sale:', error);
+    console.error('📡 Request URL:', `${BASE_URL}/student_fast_sale/college-application-sale`);
+    
+    // Log detailed error information
+    if (error.response) {
+      console.error('📊 Server Error Response:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data,
+        headers: error.response.headers
+      });
+    }
+    
+    throw error;
+  }
+};
+
+/**
+ * Map college application sale form data to API payload structure
+ * @param {Object} formData - Complete form data from CollegeSaleForm
+ * @param {Object} paymentData - Payment form data
+ * @param {Object} detailsObject - Details object from application data
+ * @param {String} activeTab - Active payment tab (cash, dd, cheque, card)
+ * @returns {Object} - Mapped payload matching API structure
+ */
+export const mapCollegeApplicationSaleToPayload = (formData, paymentData, detailsObject, activeTab) => {
+  // Helper function to convert value to number or return 0
+  const toNumber = (value) => {
+    if (value === null || value === undefined || value === '') return 0;
+    
+    // If value is a string in "name - id" format, extract the ID
+    if (typeof value === 'string' && value.includes(' - ')) {
+      const parts = value.split(' - ');
+      if (parts.length >= 2) {
+        const extractedId = parts[parts.length - 1].trim();
+        const num = Number(extractedId);
+        if (!isNaN(num)) {
+          return num;
+        }
+      }
+    }
+    
+    const num = Number(value);
+    return isNaN(num) ? 0 : num;
+  };
+
+  // Helper function to convert value to string
+  const toString = (value) => {
+    if (value === null || value === undefined) return '';
+    return String(value);
+  };
+
+  // Helper function to convert date string to ISO format
+  const toISODate = (dateString) => {
+    if (!dateString) return new Date().toISOString();
+    try {
+      const date = new Date(dateString);
+      return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+    } catch {
+      return new Date().toISOString();
+    }
+  };
+
+  // Get payment mode ID based on active tab
+  const getPaymentModeId = () => {
+    switch (activeTab) {
+      case 'cash': return 1;
+      case 'dd': return 2;
+      case 'cheque': return 3;
+      case 'card': return 4;
+      default: return 0;
+    }
+  };
+
+  // Map siblings array
+  const siblings = (formData.siblings || []).map(sibling => ({
+    fullName: toString(sibling.fullName),
+    schoolName: toString(sibling.schoolName),
+    classId: toNumber(sibling.selectClass),
+    relationTypeId: toNumber(sibling.relationType),
+    genderId: toNumber(sibling.gender),
+    createdBy: 0
+  }));
+
+  // Map concessions array
+  const concessions = [];
+  
+  // First Year Concession
+  if (formData.firstYearConcession && formData.firstYearConcessionTypeId) {
+    let reasonId = 0;
+    if (formData.concessionReason) {
+      if (typeof formData.concessionReason === 'string' && formData.concessionReason.includes(' - ')) {
+        const parts = formData.concessionReason.split(' - ');
+        if (parts.length >= 2) {
+          reasonId = Number(parts[parts.length - 1].trim());
+        }
+      } else {
+        reasonId = toNumber(formData.concessionReason);
+      }
+    }
+    
+    if (reasonId > 0) {
+      concessions.push({
+        concessionTypeId: toNumber(formData.firstYearConcessionTypeId),
+        concessionAmount: toNumber(formData.firstYearConcession),
+        givenById: 0,
+        authorizedById: toNumber(formData.authorizedBy),
+        reasonId: reasonId,
+        comments: toString(formData.description),
+        createdBy: 0,
+        concReferedBy: toNumber(formData.referredBy)
+      });
+    }
+  }
+
+  // Second Year Concession
+  if (formData.secondYearConcession && formData.secondYearConcessionTypeId) {
+    let reasonId = 0;
+    if (formData.concessionReason) {
+      if (typeof formData.concessionReason === 'string' && formData.concessionReason.includes(' - ')) {
+        const parts = formData.concessionReason.split(' - ');
+        if (parts.length >= 2) {
+          reasonId = Number(parts[parts.length - 1].trim());
+        }
+      } else {
+        reasonId = toNumber(formData.concessionReason);
+      }
+    }
+    
+    if (reasonId > 0) {
+      concessions.push({
+        concessionTypeId: toNumber(formData.secondYearConcessionTypeId),
+        concessionAmount: toNumber(formData.secondYearConcession),
+        givenById: 0,
+        authorizedById: toNumber(formData.authorizedBy),
+        reasonId: reasonId,
+        comments: toString(formData.description),
+        createdBy: 0,
+        concReferedBy: toNumber(formData.referredBy)
+      });
+    }
+  }
+
+  // Map address details
+  const addressDetails = {
+    doorNo: toString(formData.doorNo),
+    street: toString(formData.streetName),
+    landmark: toString(formData.landmark),
+    area: toString(formData.area),
+    cityId: toNumber(formData.cityAddress),
+    mandalId: toNumber(formData.mandal),
+    districtId: toNumber(formData.district),
+    pincode: toNumber(formData.pincode),
+    stateId: toNumber(formData.state),
+    createdBy: 0
+  };
+
+  // Map payment details
+  const paymentDetails = {
+    paymentModeId: getPaymentModeId(),
+    paymentDate: toISODate(paymentData.paymentDate || paymentData.card_paymentDate),
+    amount: toNumber(paymentData.amount || paymentData.card_amount || paymentData.dd_amount || paymentData.cheque_amount),
+    prePrintedReceiptNo: toString(paymentData.prePrinted || paymentData.card_receiptNo || paymentData.dd_receiptNo || paymentData.cheque_receiptNo),
+    remarks: toString(paymentData.remarks || paymentData.card_remarks || paymentData.dd_remarks || paymentData.cheque_remarks),
+    createdBy: 0,
+    transactionNumber: toString(paymentData.dd_transactionNo || paymentData.cheque_transactionNo || ''),
+    transactionDate: toISODate(paymentData.dd_transactionDate || paymentData.cheque_transactionDate),
+    organisationId: toNumber(paymentData.dd_org || paymentData.cheque_org || 0),
+    bank: toString(paymentData.dd_bank || paymentData.cheque_bank || ''),
+    branch: toString(paymentData.dd_branch || paymentData.cheque_branch || ''),
+    ifscCode: toString(paymentData.dd_ifsc || paymentData.cheque_ifsc || ''),
+    city: toString(paymentData.dd_city || paymentData.cheque_city || '')
+  };
+
+  // Build the complete payload
+  const payload = {
+    studAdmsNo: toNumber(detailsObject?.applicationNo || detailsObject?.studAdmsNo || 0),
+    createdBy: 0,
+    hallTicketNumber: toString(formData.hallTicketNo),
+    preHallTicketNo: toString(formData.tenthHallTicketNo),
+    schoolStateId: toNumber(formData.schoolState),
+    schoolDistrictId: toNumber(formData.schoolDistrict),
+    schoolName: toString(formData.schoolName),
+    scoreAppNo: toString(formData.scoreAppNo),
+    scoreMarks: toNumber(formData.scoreMarks),
+    schoolType: toNumber(formData.schoolType),
+    proReceiptNo: toNumber(formData.proReceiptNo || 0),
+    foodTypeId: toNumber(formData.foodType),
+    bloodGroupId: toNumber(formData.bloodGroup),
+    religionId: toNumber(formData.religion),
+    casteId: toNumber(formData.caste),
+    firstName: toString(formData.firstName),
+    lastName: toString(formData.surName),
+    genderId: toNumber(formData.gender),
+    dob: toISODate(formData.dob),
+    aadharCardNo: toNumber(formData.aadharCardNo),
+    apaarNo: toString(formData.aaparNo),
+    appTypeId: toNumber(formData.admissionType),
+    quotaId: toNumber(formData.quotaAdmissionReferredBy),
+    appSaleDate: new Date().toISOString(),
+    admissionReferedBy: toString(formData.quotaAdmissionReferredBy),
+    fatherName: toString(formData.fatherName),
+    fatherMobileNo: toNumber(formData.mobileNumber || formData.fatherMobile),
+    fatherEmail: toString(formData.email || formData.fatherEmail),
+    fatherSectorId: toNumber(formData.sector || formData.fatherSector),
+    fatherOccupationId: toNumber(formData.occupation || formData.fatherOccupation),
+    motherName: toString(formData.motherName),
+    motherMobileNo: toNumber(formData.motherMobile || 0),
+    motherEmail: toString(formData.motherEmail || ''),
+    motherSectorId: toNumber(formData.motherSector || 0),
+    motherOccupationId: toNumber(formData.motherOccupation || 0),
+    academicYearId: toNumber(formData.academicYear || detailsObject?.academicYearId || 0),
+    branchId: toNumber(formData.branchName),
+    classId: toNumber(formData.joiningClass),
+    orientationId: toNumber(formData.orientationName),
+    studentTypeId: toNumber(formData.branchType),
+    preCollegeName: toString(formData.collegeName),
+    preCollegeTypeId: toNumber(formData.clgType),
+    preCollegeStateId: toNumber(formData.clgState),
+    preCollegeDistrictId: toNumber(formData.clgDistrict),
+    addressDetails: addressDetails,
+    paymentDetails: paymentDetails,
+    siblings: siblings,
+    concessions: concessions
+  };
+
+  return payload;
+};
+

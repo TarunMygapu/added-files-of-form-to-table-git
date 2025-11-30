@@ -147,3 +147,8 @@
 
 /* (Old classes below are no longer used but left intact so nothing else breaks)
    .dropdown_search_list, .dropdown_results, etc. */
+
+
+.errormessage{
+  color: red;
+}

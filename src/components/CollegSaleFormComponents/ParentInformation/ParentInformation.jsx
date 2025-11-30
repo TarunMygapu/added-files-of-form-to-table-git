@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useFormikContext } from "formik";
 import styles from "./ParentInformation.module.css";
 
 import {
@@ -7,41 +8,81 @@ import {
 } from "./parentInformationFields";
 
 import SiblingInformation from "./SiblingInformation";
-
 import { renderField } from "../../../utils/renderField";
+
 import Button from "../../../widgets/Button/Button";
 import uploadAnnexureIcon from "../../../assets/uploadAnnexureIcon";
 import plusIconBlueColor from "../../../assets/plusIconBlueColor";
 
+import { useGetSector, useGetOccupation } from "../../../queires/saleApis/clgSaleApis";
+
 const ParentInformation = () => {
-  const [showSibling, setShowSibling] = useState(true);
+ const { values, setFieldValue, errors, touched } = useFormikContext();
+  const [showSibling, setShowSibling] = useState(false);
 
-  const [values, setValues] = useState({
-    fatherName: "",
-    mobileNumber: "",
-  });
+  const { data: sectorData } = useGetSector();
+  const { data: occupationData } = useGetOccupation();
 
-  const setFieldValue = (field, value) => {
-    setValues((prev) => ({ ...prev, [field]: value }));
-  };
-
-  // Map field name → field config
+  // Build field map dynamically
   const fieldMap = parentInfoFields.reduce((acc, f) => {
-    acc[f.name] = f;
+    let field = { ...f };
+
+    // populate dropdowns for father & mother
+    if (f.name.includes("Sector"))
+      field.options = sectorData?.data?.map((s) => s.name) || [];
+
+    if (f.name.includes("Occupation"))
+      field.options = occupationData?.data?.map((o) => o.name) || [];
+
+    acc[f.name] = field;
     return acc;
   }, {});
 
-  const handleClickSiblingButton = () => {
-    // show the sibling section (first click)
-    // if you want toggle, use: setShowSibling(prev => !prev);
-    setShowSibling(true);
-  };
+  // 💥 Check father Other condition
+  const showFatherOther =
+    values.fatherSector === "Others" && values.fatherOccupation === "Others";
 
-  const addSiblingButtonText = showSibling
-    ? "Add Another Sibling"
-    : "Add Sibling";
+  if (!showFatherOther && values.fatherOther) {
+    setFieldValue("fatherOther", "");
+  }
 
-  const buttonWidth = showSibling ? "240px" : "194px";
+  // 💥 Check mother Other condition
+  const showMotherOther =
+    values.motherSector === "Others" && values.motherOccupation === "Others";
+
+  if (!showMotherOther && values.motherOther) {
+    setFieldValue("motherOther", "");
+  }
+
+  // 💥 Build dynamic layout
+  const dynamicLayout = [
+    {
+      id: "row1",
+      fields: ["fatherName", "fatherMobile", "fatherEmail"],
+    },
+
+    {
+      id: "row2",
+      fields: showFatherOther
+        ? ["fatherSector", "fatherOccupation", "fatherOther"]
+        : ["fatherSector", "fatherOccupation",""],
+    },
+
+    {
+      id: "row3",
+      fields: ["motherName", "motherMobile", "motherEmail"],
+    },
+
+    {
+      id: "row4",
+      fields: showMotherOther
+        ? ["motherSector", "motherOccupation", "motherOther"]
+        : ["motherSector", "motherOccupation",""],
+    },
+
+    showSibling ? { id: "rowSibling", fields: [] } : null,
+  ].filter(Boolean);
+
 
   return (
     <div className={styles.clgAppSalePersonalInforWrapper}>
@@ -51,22 +92,26 @@ const ParentInformation = () => {
       </div>
 
       <div className={styles.clgAppSaleParentInfoBottom}>
-        {parentInfoFieldsLayout.map((row) => (
+
+        {dynamicLayout.map((row) => (
           <div key={row.id} className={styles.clgAppSalerow}>
             {row.fields.map((fname) => (
               <div key={fname} className={styles.clgAppSaleFieldCell}>
-                {renderField(fname, fieldMap, {
-                  value: values[fname] ?? "",
-                  onChange: (e) => setFieldValue(fname, e.target.value),
-                })}
+                {fname &&
+                  renderField(fname, fieldMap, {
+                    value: values[fname] ?? "",
+                    onChange: (e) => setFieldValue(fname, e.target.value),
+                    error: touched[fname] && errors[fname],
+                  })}
               </div>
             ))}
           </div>
         ))}
 
-        {/* Show sibling section only when button is clicked */}
+        {/* Sibling Info */}
         {showSibling && <SiblingInformation />}
 
+        {/* Buttons */}
         <div className={styles.clgAppSalerow}>
           <div className={styles.clgAppSaleFieldCell}>
             <Button
@@ -79,13 +124,17 @@ const ParentInformation = () => {
 
           <div className={styles.clgAppSaleFieldCell}>
             <Button
-              buttonname={addSiblingButtonText}
+              buttonname={
+                showSibling ? "Add Another Sibling" : "Add Sibling"
+              }
               variant="secondaryWithExtraPadding"
               lefticon={plusIconBlueColor}
-              width={buttonWidth}
-              onClick={handleClickSiblingButton}
+              width={showSibling ? "240px" : "194px"}
+              onClick={() => setShowSibling(true)}
             />
           </div>
+
+          <div className={styles.clgAppSaleFieldCell}></div>
         </div>
       </div>
     </div>

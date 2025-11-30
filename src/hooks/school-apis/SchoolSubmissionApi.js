@@ -300,3 +300,320 @@ export const mapFormDataToPayload = (formData, siblings, paymentData, detailsObj
   return payload;
 };
 
+/**
+ * Submit school fast sale data
+ * @param {Object} payload - The complete payload matching the fast sale API structure
+ * @returns {Promise} - Axios response
+ */
+export const submitSchoolFastSale = async (payload) => {
+  try {
+    const endpoint = '/student_fast_sale/fast-sale';
+    const fullUrl = `http://localhost:8080${endpoint}`;
+    console.log('🌐 Submitting Fast Sale to:', fullUrl);
+    console.log('📦 Payload size:', JSON.stringify(payload).length, 'bytes');
+    
+    const response = await axios.post(fullUrl, payload, {
+      timeout: 30000,
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    console.log('✅ Fast Sale Response received:', response.status, response.statusText);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error submitting school fast sale:', error);
+    console.error('📡 Request URL:', `http://localhost:8080/student_fast_sale/fast-sale`);
+    
+    // Log detailed error information
+    if (error.response) {
+      console.error('📊 Server Error Response:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data,
+        headers: error.response.headers
+      });
+    }
+    
+    throw error;
+  }
+};
+
+/**
+ * Map form data to fast sale API payload structure
+ * @param {Object} formData - Form data from SchoolSale form
+ * @param {Object} paymentData - Payment form data
+ * @param {Object} detailsObject - Details object (contains applicationNo, etc.)
+ * @param {String} activeTab - Active payment tab (cash, dd, cheque, card)
+ * @returns {Object} - Mapped payload matching fast sale API structure
+ */
+export const mapFormDataToFastSalePayload = (formData, paymentData, detailsObject, activeTab) => {
+  // Helper function to convert value to number or return 0
+  const toNumber = (value) => {
+    if (value === null || value === undefined || value === '') return 0;
+    
+    // If value is a string in "name - id" format, extract the ID
+    if (typeof value === 'string' && value.includes(' - ')) {
+      const parts = value.split(' - ');
+      if (parts.length >= 2) {
+        const extractedId = parts[parts.length - 1].trim();
+        const num = Number(extractedId);
+        if (!isNaN(num)) {
+          return num;
+        }
+      }
+    }
+    
+    const num = Number(value);
+    return isNaN(num) ? 0 : num;
+  };
+
+  // Helper function to convert value to string
+  const toString = (value) => {
+    if (value === null || value === undefined) return '';
+    return String(value);
+  };
+
+  // Helper function to convert date string to ISO format
+  const toISODate = (dateString) => {
+    if (!dateString) return new Date().toISOString();
+    try {
+      const date = new Date(dateString);
+      return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+    } catch {
+      return new Date().toISOString();
+    }
+  };
+
+  // Get payment mode ID based on active tab
+  const getPaymentModeId = () => {
+    switch (activeTab) {
+      case 'cash': return 1;
+      case 'dd': return 2;
+      case 'cheque': return 3;
+      case 'card': return 4;
+      default: return 0;
+    }
+  };
+
+  // Map address details
+  const addressDetails = {
+    doorNo: toString(formData.doorNo || ''),
+    street: toString(formData.streetName || ''),
+    landmark: toString(formData.landmark || ''),
+    area: toString(formData.area || ''),
+    cityId: toNumber(formData.city || formData.cityAddress),
+    mandalId: toNumber(formData.mandal),
+    districtId: toNumber(formData.district),
+    pincode: toNumber(formData.pincode),
+    stateId: toNumber(formData.state),
+    createdBy: 0
+  };
+
+  // Map payment details based on active tab
+  const paymentDetails = {
+    paymentModeId: getPaymentModeId(),
+    paymentDate: toISODate(paymentData.paymentDate || paymentData.card_paymentDate),
+    amount: toNumber(paymentData.amount || paymentData.card_amount || paymentData.dd_amount || paymentData.cheque_amount),
+    prePrintedReceiptNo: toString(paymentData.prePrinted || paymentData.card_receiptNo || paymentData.dd_receiptNo || paymentData.cheque_receiptNo),
+    remarks: toString(paymentData.remarks || paymentData.card_remarks || paymentData.dd_remarks || paymentData.cheque_remarks),
+    createdBy: 0,
+    transactionNumber: toString(paymentData.dd_transactionNo || paymentData.cheque_transactionNo || ''),
+    transactionDate: toISODate(paymentData.dd_transactionDate || paymentData.cheque_transactionDate),
+    organisationId: toNumber(paymentData.dd_org || paymentData.cheque_org || 0),
+    bank: toString(paymentData.dd_bank || paymentData.cheque_bank || ''),
+    branch: toString(paymentData.dd_branch || paymentData.cheque_branch || ''),
+    ifscCode: toString(paymentData.dd_ifsc || paymentData.cheque_ifsc || ''),
+    city: toString(paymentData.dd_city || paymentData.cheque_city || '')
+  };
+
+  // Build the fast sale payload
+  const payload = {
+    createdBy: 0,
+    aadharCardNo: toNumber(formData.aadharCardNo),
+    apaarNo: toString(formData.aaparNo || ''),
+    firstName: toString(formData.firstName || ''),
+    lastName: toString(formData.surName || ''),
+    genderId: toNumber(formData.gender),
+    dob: toISODate(formData.dob),
+    appTypeId: toNumber(formData.admissionType),
+    quotaId: toNumber(formData.quotaAdmissionReferredBy),
+    app_sale_date: new Date().toISOString(),
+    admissionReferredBy: toString(formData.quotaAdmissionReferredBy || ''),
+    fatherName: toString(formData.fatherName || ''),
+    fatherMobileNo: toNumber(formData.fatherMobile),
+    academicYearId: toNumber(formData.academicYearId || detailsObject?.academicYearId || formData.academicYear || 0),
+    branchId: toNumber(formData.campusId || detailsObject?.campusId || detailsObject?.branchId || formData.campusName || formData.branchName || 0),
+    classId: toNumber(formData.joiningClass),
+    orientationId: toNumber(formData.orientationName),
+    studentTypeId: toNumber(formData.studentType),
+    addressDetails: addressDetails,
+    paymentDetails: paymentDetails,
+    studAdmsNo: toNumber(detailsObject?.applicationNo || detailsObject?.studAdmsNo || 0)
+  };
+
+  console.log('✅ Fast Sale Payload Created Successfully:');
+  console.log('  - studAdmsNo:', payload.studAdmsNo);
+  console.log('  - firstName:', payload.firstName);
+  console.log('  - academicYearId:', payload.academicYearId, '(from formData.academicYearId:', formData.academicYearId, ')');
+  console.log('  - branchId:', payload.branchId, '(from formData.campusId:', formData.campusId, ')');
+  console.log('  - Payment Mode ID:', payload.paymentDetails?.paymentModeId);
+  console.log('  - Payment Amount:', payload.paymentDetails?.amount);
+
+  return payload;
+};
+
+/**
+ * Submit school application sale data to create endpoint
+ * @param {Object} payload - The complete payload matching the API structure
+ * @returns {Promise} - Axios response
+ */
+export const submitSchoolApplicationSaleCreate = async (payload) => {
+  try {
+    const endpoint = '/student-admissions-sale/create';
+    const fullUrl = `${BASE_URL}${endpoint}`;
+    console.log('🌐 Submitting to:', fullUrl);
+    console.log('📦 Payload size:', JSON.stringify(payload).length, 'bytes');
+    
+    const response = await apiClient.post(endpoint, payload);
+    console.log('✅ Response received:', response.status, response.statusText);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error submitting school application sale create:', error);
+    console.error('📡 Request URL:', `${BASE_URL}/student-admissions-sale/create`);
+    
+    // Log detailed error information
+    if (error.response) {
+      console.error('📊 Server Error Response:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data,
+        headers: error.response.headers
+      });
+    }
+    
+    throw error;
+  }
+};
+
+/**
+ * Map school application sale form data to create API payload structure
+ * @param {Object} formData - Complete form data from SchoolSaleForm
+ * @param {Object} paymentData - Payment form data
+ * @param {Object} detailsObject - Details object from application data
+ * @param {String} activeTab - Active payment tab (cash, dd, cheque, card)
+ * @returns {Object} - Mapped payload matching API structure
+ */
+export const mapSchoolApplicationSaleToPayload = (formData, paymentData, detailsObject, activeTab) => {
+  // Helper function to convert value to number or return 0
+  const toNumber = (value) => {
+    if (value === null || value === undefined || value === '') return 0;
+    
+    // If value is a string in "name - id" format, extract the ID
+    if (typeof value === 'string' && value.includes(' - ')) {
+      const parts = value.split(' - ');
+      if (parts.length >= 2) {
+        const extractedId = parts[parts.length - 1].trim();
+        const num = Number(extractedId);
+        if (!isNaN(num)) {
+          return num;
+        }
+      }
+    }
+    
+    const num = Number(value);
+    return isNaN(num) ? 0 : num;
+  };
+
+  // Helper function to convert value to string
+  const toString = (value) => {
+    if (value === null || value === undefined) return '';
+    return String(value);
+  };
+
+  // Helper function to convert date string to ISO format
+  const toISODate = (dateString) => {
+    if (!dateString) return new Date().toISOString();
+    try {
+      const date = new Date(dateString);
+      return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+    } catch {
+      return new Date().toISOString();
+    }
+  };
+
+  // Get payment mode ID based on active tab
+  const getPaymentModeId = () => {
+    switch (activeTab) {
+      case 'cash': return 1;
+      case 'dd': return 2;
+      case 'cheque': return 3;
+      case 'card': return 4;
+      default: return 0;
+    }
+  };
+
+  // Map address details
+  const addressDetails = {
+    doorNo: toString(formData.doorNo || ''),
+    street: toString(formData.streetName || ''),
+    landmark: toString(formData.landmark || ''),
+    area: toString(formData.area || ''),
+    cityId: toNumber(formData.city || formData.cityAddress),
+    mandalId: toNumber(formData.mandal),
+    districtId: toNumber(formData.district),
+    pincode: toNumber(formData.pincode),
+    stateId: toNumber(formData.state),
+    createdBy: 0
+  };
+
+  // Map payment details
+  const paymentDetails = {
+    paymentModeId: getPaymentModeId(),
+    paymentDate: toISODate(paymentData.paymentDate || paymentData.card_paymentDate),
+    amount: toNumber(paymentData.amount || paymentData.card_amount || paymentData.dd_amount || paymentData.cheque_amount),
+    prePrintedReceiptNo: toString(paymentData.prePrinted || paymentData.card_receiptNo || paymentData.dd_receiptNo || paymentData.cheque_receiptNo),
+    remarks: toString(paymentData.remarks || paymentData.card_remarks || paymentData.dd_remarks || paymentData.cheque_remarks),
+    createdBy: 0,
+    transactionNumber: toString(paymentData.dd_transactionNo || paymentData.cheque_transactionNo || ''),
+    transactionDate: toISODate(paymentData.dd_transactionDate || paymentData.cheque_transactionDate),
+    organisationId: toNumber(paymentData.dd_org || paymentData.cheque_org || 0),
+    bank: toString(paymentData.dd_bank || paymentData.cheque_bank || ''),
+    branch: toString(paymentData.dd_branch || paymentData.cheque_branch || ''),
+    ifscCode: toString(paymentData.dd_ifsc || paymentData.cheque_ifsc || ''),
+    city: toString(paymentData.dd_city || paymentData.cheque_city || '')
+  };
+
+  // Build the payload
+  const payload = {
+    firstName: toString(formData.firstName || ''),
+    lastName: toString(formData.surName || ''),
+    genderId: toNumber(formData.gender),
+    apaarNo: toString(formData.aaparNo || ''),
+    dob: toISODate(formData.dob),
+    aadharCardNo: toNumber(formData.aadharCardNo),
+    quotaId: toNumber(formData.quotaAdmissionReferredBy),
+    proReceiptNo: toNumber(formData.proReceiptNo || 0),
+    admissionReferedBy: toString(formData.quotaAdmissionReferredBy || ''),
+    appSaleDate: new Date().toISOString(),
+    fatherName: toString(formData.fatherName || ''),
+    fatherMobileNo: toNumber(formData.fatherMobile || formData.mobileNumber),
+    academicYearId: toNumber(formData.academicYearId || detailsObject?.academicYearId || formData.academicYear || 0),
+    branchId: toNumber(formData.campusId || detailsObject?.campusId || detailsObject?.branchId || formData.campusName || formData.branchName || 0),
+    studentTypeId: toNumber(formData.studentType || formData.branchType || 0),
+    classId: toNumber(formData.joiningClass || 0),
+    orientationId: toNumber(formData.orientationName || 0),
+    appTypeId: toNumber(formData.admissionType || 0),
+    addressDetails: addressDetails,
+    studAdmsNo: toNumber(detailsObject?.applicationNo || detailsObject?.studAdmsNo || 0),
+    createdBy: 0,
+    paymentDetails: paymentDetails
+  };
+
+  console.log('✅ School Application Sale Payload Created:');
+  console.log('  - academicYearId:', payload.academicYearId, '(from formData.academicYearId:', formData.academicYearId, ')');
+  console.log('  - branchId:', payload.branchId, '(from formData.campusId:', formData.campusId, ')');
+  console.log('  - studAdmsNo:', payload.studAdmsNo);
+
+  return payload;
+};
+

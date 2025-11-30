@@ -21,12 +21,14 @@ const SearchBox = ({
   const currentValue = isControlled ? value : internal;
 
   const handleChange = (e) => {
+    if (!e || !e.target) return; // Guard against undefined event
+    
     if (!isControlled) setInternal(e.target.value); // keep internal in sync
 
     // bubble up in multiple common shapes so parents can choose what they like
     onChange?.(e); // standard React onChange(event)
     onInput?.(e); // optional alias
-    onValueChange?.(e.target.value); // just the raw string
+    onValueChange?.(e.target?.value); // just the raw string with safe access
   };
 
   const wrapperStyle = useMemo(() => (width ? { width } : undefined), [width]);

@@ -63,11 +63,13 @@ const Dropdown = ({
   disabled = false,
   minChars = 3,
   required = false,
+  error,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef(null);
 
+  // Normalize incoming list
   const normalized = useMemo(
     () =>
       (Array.isArray(results) ? results : [])
@@ -76,17 +78,25 @@ const Dropdown = ({
     [results]
   );
 
-  const hasSearchBox = dropdownsearch && normalized.length > 5;
+  // 🔥 REMOVE SELECTED VALUE FROM DROPDOWN LIST
+  const filteredResults = useMemo(() => {
+    if (!value) return normalized;
+    return normalized.filter((item) => item !== value);
+  }, [normalized, value]);
+
+  const hasSearchBox = dropdownsearch && filteredResults.length > 5;
   const term = searchTerm.trim();
   const useFilter = hasSearchBox && term.length >= minChars;
 
   const listToShow = useMemo(() => {
     if (useFilter) {
       const lc = term.toLowerCase();
-      return normalized.filter((item) => item.toLowerCase().includes(lc));
+      return filteredResults.filter((item) =>
+        item.toLowerCase().includes(lc)
+      );
     }
-    return normalized;
-  }, [normalized, useFilter, term]);
+    return filteredResults;
+  }, [filteredResults, useFilter, term]);
 
   const handleToggle = () => {
     if (disabled) return;

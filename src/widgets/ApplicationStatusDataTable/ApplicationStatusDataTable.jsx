@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -26,8 +26,18 @@ const ApplicationStatusDataTable = ({
   // Derive totals and paging
   const totalPages = Math.max(Math.ceil(totalData / pageSize), 1);
 
+  // Use internal state if setPageIndex is not provided
+  const currentPageIndex = setPageIndex !== undefined ? pageIndex : internalPageIndex;
+
+  // Slice data for pagination - only show data for current page
+  const paginatedData = useMemo(() => {
+    const startIndex = currentPageIndex * pageSize;
+    const endIndex = startIndex + pageSize;
+    return (data || []).slice(startIndex, endIndex);
+  }, [data, currentPageIndex, pageSize]);
+
   const table = useReactTable({
-    data: data || [],
+    data: paginatedData,
     columns: columns || [],
     getCoreRowModel: getCoreRowModel(),
   });
@@ -35,9 +45,6 @@ const ApplicationStatusDataTable = ({
   const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [internalPageIndex, setInternalPageIndex] = useState(pageIndex || 0);
-
-  // Use internal state if setPageIndex is not provided
-  const currentPageIndex = setPageIndex !== undefined ? pageIndex : internalPageIndex;
 
   const handlePageIndexChange = (newIndexOrUpdater) => {
     if (setPageIndex) {

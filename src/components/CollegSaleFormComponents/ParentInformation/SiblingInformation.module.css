@@ -11,3 +11,57 @@
 .clgAppSaleFieldCell{
     width: 335px;
 }
+
+.clgAppSaleParentsInfoTop{
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.clgAppSaleParentsHeading{
+    font-size: 12px;
+    font-weight: 400;
+    color:#000000;
+}
+
+.clgAppSalePersonalInfoSeperationLine{
+    height: 1px;
+    background: linear-gradient(90deg, #B6B6B6 0%, rgba(255, 255, 255, 0) 100%);
+    width: 40%;
+}
+
+.siblingsFieldsWrapper{
+    padding: 20px;
+    border: 1px solid black;
+    border-radius: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.siblingButtons{
+    position: absolute;
+    top: -8px;
+    right: 30px;
+    display: flex;
+    gap: 20px;
+}
+
+.clearButton{
+    background-color: blue;
+    padding: 10px 20px;
+    color: #fff;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.siblingsCloseButton{
+    border-radius: 20px;
+   padding: 5px 20px;
+    background-color: red;
+    color: #000000;
+    cursor: pointer;
+}
+

@@ -1,10 +1,17 @@
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import CollegeOverviewContainer from "../college-overview-container/CollegeOverviewContainer";
 import CollegeAppConfContainer from "../college-app_conf-container/CollegeAppConfContainer";
 import CollegePaymentPopup from "../college-payment-popup-container/CollegePaymentPopup";
 import { useAdmissionSaleData, useCollegeOverviewData } from "../../../../hooks/college-apis/CollegeOverviewApis";
 
 const CollegeSaleConfirmationContainer = () => {
+  const location = useLocation();
+  const applicationData = location.state?.applicationData;
+  
+  // Get applicationNo from navigation state - no hardcoded fallback
+  const applicationNo = applicationData?.applicationNo;
+  
   const [currentStep, setCurrentStep] = useState(1); // 1 = Overview, 2 = Application Confirmation
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
   
@@ -12,16 +19,22 @@ const CollegeSaleConfirmationContainer = () => {
   const [formData, setFormData] = useState(null);
   const [academicFormData, setAcademicFormData] = useState(null);
 
-  // Fetch data once at parent level
-  const { data: detailsObject } = useAdmissionSaleData("2815502");
-  const { overviewData } = useCollegeOverviewData("2815504");
+  // Fetch data once at parent level - using dynamic applicationNo
+  const { data: detailsObject } = useAdmissionSaleData(applicationNo);
+  const { overviewData } = useCollegeOverviewData(applicationNo);
 
-  // Debug: Log the overview data at container level
-  console.log('🏗️ CollegeSaleConfirmationContainer - overviewData:', overviewData);
-  console.log('🏗️ CollegeSaleConfirmationContainer - overviewData type:', typeof overviewData);
-  if (overviewData) {
-    console.log('🏗️ CollegeSaleConfirmationContainer - overviewData keys:', Object.keys(overviewData));
-    console.log('🏗️ CollegeSaleConfirmationContainer - concessions:', overviewData.concessions);
+  // Show error if applicationNo is not available
+  if (!applicationNo) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <div style={{ color: 'red', fontSize: '18px', marginBottom: '10px' }}>
+          Error: Application number is required
+        </div>
+        <div style={{ fontSize: '14px', color: '#666' }}>
+          Please navigate from the Application Status table to access this page.
+        </div>
+      </div>
+    );
   }
 
   const handleNext = () => {

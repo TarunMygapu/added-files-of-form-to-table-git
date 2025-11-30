@@ -19,7 +19,7 @@ export const orientationInfoFieldsForSchool =[
   },
   {
     name:"orientationName",
-    label:"Course Name",
+    label:"Branch Name",
     options:["Type-1","Type-2"],
   },
   {
@@ -43,10 +43,18 @@ export const orientationInfoFieldsForSchool =[
     disabled: true,
     placeholder: "Enter City",
   },
+  {
+    name: "orientationFee",
+    label: "Branch Fee",
+    type: "text",
+      readOnly: true,
+  disabled: false,
+    placeholder: "Course Fee",
+  },
 ]
 
 export const orientationInfoFieldsLayoutForSchool = [
-    {id:"row1", fields:["academicYear","branchName","branchType"]},
-    {id:"row2", fields:["city","studentType","joiningClass"]},
-    {id:"row3", fields:["orientationName","",""]},
+    {id:"row1", fields:["academicYear","city","branchName"]},
+    {id:"row2", fields:["branchType","joiningClass","orientationName"]},
+    {id:"row3", fields:["studentType","orientationFee",""]},
 ]

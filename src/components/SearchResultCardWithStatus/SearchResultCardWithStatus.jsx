@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import styles from "./SearchResultCardWithStatus.module.css";
 import DivisionDesign from "../../assets/application-status/DivisionDesign.svg";
 import Statusbar from "../../widgets/StatusBar/Statusbar";
-import PopupcloseIcon from "../../assets/kindOfSaleIcons/PopupcloseIcon.svg";
-import ApplicationSaleIcon from "../../assets/kindOfSaleIcons/ApplicationSaleIcon.svg";
-import ApplicationFastSaleIcon from "../../assets/kindOfSaleIcons/ApplicationFastSaleIcon.svg";
+import PopupcloseIcon from "../../assets/kindOfSaleIcons(college)/PopupcloseIcon.svg";
+import ApplicationSaleIcon from "../../assets/kindOfSaleIcons(college)/ApplicationSaleIcon.svg";
+import ApplicationFastSaleIcon from "../../assets/kindOfSaleIcons(college)/ApplicationFastSaleIcon.svg";
 
 const SearchResultCardWithStatus = ({ data, maxResults = 5, onCardClick, category = 'school' }) => {
   // Permission check removed - always allow clicking

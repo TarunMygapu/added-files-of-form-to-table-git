@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import ApplicationStatusTable from '../ApplicationStatusTableForData/ApplicationStatusTableForData';
 import styles from '../../../../widgets/ApplicationStatusDataTable/ApplicationStatusDataTable.module.css';
 import './ApplicationStatusTableToManageData.module.css';
+import { useApplicationStatusData } from '../../../../hooks/application-status-apis/ApplicationStatusApis';
 
 // Normalize status to a standard key
 const normalizeStatus = (status) => {
@@ -102,13 +103,17 @@ const ApplicationStatusTableToManageData = ({
     category = 'school',
     setSearch,
     navigate,
-    handleNavigateToSalePage
+    handleNavigateToSalePage,
+    employeeCampusId = 4004 // Default to 4004, will be replaced with login data later
 }) => {
     const [internalPageIndex, setInternalPageIndex] = useState(0);
 
     // Use external pageIndex if provided, otherwise use internal state
     const pageIndex = externalPageIndex !== undefined ? externalPageIndex : internalPageIndex;
     const setPageIndex = externalSetPageIndex || setInternalPageIndex;
+
+    // Fetch data from API
+    const { data: apiData, loading, error } = useApplicationStatusData(employeeCampusId);
 
     // Default columns with custom status cell renderer
     const columns = [
@@ -140,25 +145,40 @@ const ApplicationStatusTableToManageData = ({
         },
     ];
 
-    // Sample data - converted to state so checkbox selection can be updated
-    const [allData, setAllData] = useState([
-        { applicationNo: "281237494528", pro: "PRO1", campus: "Campus A", dgm: "DGM1", zone: "Zone 1", date: new Date(2025, 7, 14), status: "With PRO", isSelected: false },
-        { applicationNo: "656578689084", pro: "PRO2", campus: "Campus B", dgm: "DGM2", zone: "Zone 2", date: new Date(2025, 7, 15), status: "Sold", isSelected: false },
-        { applicationNo: "512478963001", pro: "PRO3", campus: "Campus C", dgm: "DGM3", zone: "Zone 3", date: new Date(2025, 7, 16), status: "Confirmed", isSelected: false },
-        { applicationNo: "351532456789", pro: "PRO4", campus: "Campus D", dgm: "DGM4", zone: "Zone 4", date: new Date(2025, 7, 17), status: "Fast sold", isSelected: false },
-        { applicationNo: "354685236974", pro: "PRO5", campus: "Campus E", dgm: "DGM5", zone: "Zone 5", date: new Date(2025, 7, 18), status: "Unavailable", isSelected: false },
-        { applicationNo: "321356251551", pro: "PRO6", campus: "Campus F", dgm: "DGM6", zone: "Zone 6", date: new Date(2025, 7, 19), status: "Damaged", isSelected: false },
-        { applicationNo: "165346565954", pro: "PRO7", campus: "Campus G", dgm: "DGM7", zone: "Zone 7", date: new Date(2025, 7, 20), status: "Fast Sold", isSelected: false },
-        { applicationNo: "546846535454", pro: "PRO1", campus: "Campus A", dgm: "DGM1", zone: "Zone 1", date: new Date(2025, 7, 21), status: "With PRO", isSelected: false },
-        { applicationNo: "515656546565", pro: "PRO2", campus: "Campus B", dgm: "DGM2", zone: "Zone 2", date: new Date(2025, 7, 22), status: "Sold", isSelected: false },
-        { applicationNo: "135465151535", pro: "PRO3", campus: "Campus C", dgm: "DGM3", zone: "Zone 3", date: new Date(2025, 7, 23), status: "Fast sold", isSelected: false },
-        { applicationNo: "556165165151", pro: "PRO4", campus: "Campus D", dgm: "DGM4", zone: "Zone 4", date: new Date(2025, 7, 24), status: "With PRO", isSelected: false },
-        { applicationNo: "165415165165", pro: "PRO5", campus: "Campus E", dgm: "DGM5", zone: "Zone 5", date: new Date(2025, 7, 25), status: "Sold", isSelected: false },
-        { applicationNo: "316546515646", pro: "PRO6", campus: "Campus F", dgm: "DGM6", zone: "Zone 6", date: new Date(2025, 7, 26), status: "Confirmed", isSelected: false },
-        { applicationNo: "326545153465", pro: "PRO7", campus: "Campus G", dgm: "DGM7", zone: "Zone 7", date: new Date(2025, 7, 27), status: "Fast Sold", isSelected: false },
-        { applicationNo: "321351562315", pro: "PRO8", campus: "Campus H", dgm: "DGM8", zone: "Zone 8", date: new Date(2025, 7, 28), status: "Unavailable", isSelected: false },
-        { applicationNo: "148656846498", pro: "PRO9", campus: "Campus I", dgm: "DGM9", zone: "Zone 9", date: new Date(2025, 7, 29), status: "Damaged", isSelected: false },
-    ]);
+    // Data from API - converted to state so checkbox selection can be updated
+    const [allData, setAllData] = useState([]);
+
+    // Update allData when API data is fetched - only use backend data, no hardcoded values
+    useEffect(() => {
+        if (apiData && apiData.length > 0) {
+            // Initialize with isSelected: false for each item
+            // Only use data that has applicationNo (required field)
+            const dataWithSelection = apiData
+                .filter(item => {
+                    const hasAppNo = item.applicationNo && item.applicationNo.trim() !== '';
+                    return hasAppNo;
+                })
+                .map(item => ({
+                    ...item,
+                    isSelected: false
+                }));
+            setAllData(dataWithSelection);
+        } else if (!loading && !error) {
+            // If no data and not loading, set empty array
+            setAllData([]);
+        }
+    }, [apiData, loading, error]);
+
+    // Extract unique campuses from API data for dynamic campus filter
+    const availableCampuses = useMemo(() => {
+        const campuses = new Set(['All Campuses']);
+        allData.forEach(item => {
+            if (item.campus && item.campus.trim() !== '') {
+                campuses.add(item.campus);
+            }
+        });
+        return Array.from(campuses);
+    }, [allData]);
 
     // Apply filters to data
     const data = useMemo(() => {
@@ -310,6 +330,54 @@ const ApplicationStatusTableToManageData = ({
             });
         }
     };
+
+    // Show loading state
+    if (loading) {
+        return (
+            <div style={{ padding: '20px', textAlign: 'center' }}>
+                Loading application status data...
+            </div>
+        );
+    }
+
+    // Show error state
+    if (error) {
+        const isTimeout = error.code === 'ECONNABORTED' || error.message?.includes('timeout');
+        const errorMessage = isTimeout 
+            ? 'Request timeout - The server is taking too long to respond. This may indicate a backend performance issue or large dataset.'
+            : (error.message || error.response?.data?.message || 'Unknown error');
+        
+        return (
+            <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
+                <div style={{ fontWeight: 'bold', marginBottom: '10px' }}>
+                    Error loading application status data
+                </div>
+                <div style={{ fontSize: '14px', marginTop: '10px', marginBottom: '10px' }}>
+                    {errorMessage}
+                </div>
+                {isTimeout && (
+                    <div style={{ fontSize: '12px', marginTop: '10px', color: '#666', fontStyle: 'italic' }}>
+                        Please contact the backend team to optimize the database query for employeeCampusId: {employeeCampusId}
+                    </div>
+                )}
+                <div style={{ fontSize: '12px', marginTop: '10px', color: '#666' }}>
+                    Check browser console for technical details
+                </div>
+            </div>
+        );
+    }
+
+    // Show message if no data
+    if (!loading && !error && allData.length === 0) {
+        return (
+            <div style={{ padding: '20px', textAlign: 'center' }}>
+                <div>No application data found</div>
+                <div style={{ fontSize: '12px', marginTop: '10px', color: '#666' }}>
+                    Check browser console for API response details
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div>

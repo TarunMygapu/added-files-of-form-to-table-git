@@ -21,7 +21,7 @@ const rightSideIcon = (
  * @param {function} onClose - Function to call to close the popup.
  * @param {function} onConfirm - Function to call when 'Yes' is clicked (optional, added for completeness).
  */
-const Popup = ({ isOpen, onClose, onConfirm }) => {
+const Popup = ({ isOpen, onClose,name, onConfirm }) => {
     // Ref to detect clicks outside the popup content
     const contentRef = useRef(null);
 
@@ -66,7 +66,7 @@ const Popup = ({ isOpen, onClose, onConfirm }) => {
                     <figure>
                         <img src={popupicon} alt="Popup Icon" />
                     </figure>
-                    <p className={styles.popup_text}>Are you sure to distribute?</p>
+                    <p className={styles.popup_text}>Are you sure to {name}?</p>
                 </div>
                 
                 <div className={styles.popup_buttons}>

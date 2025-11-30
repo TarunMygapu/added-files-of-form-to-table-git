@@ -7,8 +7,8 @@ import DDForms from "../popup-formspart/DDForms";
 import ChequeForms from "../popup-formspart/ChequeForms";
 import CardForms from "../popup-formspart/CardForms";
 import Button from "../../Button/Button";
-import { submitSchoolApplicationSale, mapFormDataToPayload } from "../../../hooks/school-apis/SchoolSubmissionApi";
-import { submitCollegeApplicationConfirmation, mapCollegeFormDataToPayload } from "../../../hooks/college-apis/CollegeSubmissionApi";
+import { submitSchoolApplicationSale, mapFormDataToPayload, submitSchoolFastSale, mapFormDataToFastSalePayload, submitSchoolApplicationSaleCreate, mapSchoolApplicationSaleToPayload } from "../../../hooks/school-apis/SchoolSubmissionApi";
+import { submitCollegeApplicationConfirmation, mapCollegeFormDataToPayload, submitCollegeApplicationSale, mapCollegeApplicationSaleToPayload } from "../../../hooks/college-apis/CollegeSubmissionApi";
 
 const PaymentPopup = ({ 
   onClose, 
@@ -18,8 +18,24 @@ const PaymentPopup = ({
   detailsObject,
   type = "school", // "school" or "college"
   collegeFormData, // For college: concession form data
-  collegeAcademicFormData // For college: academic form data (orientation info)
+  collegeAcademicFormData, // For college: academic form data (orientation info)
+  saleType = "regular" // "regular" or "fast"
 }) => {
+  // Determine button text based on sale type and form type
+  const getButtonText = () => {
+    if (saleType === "fast") {
+      // For college fast sale, show "Finish Fast Sale"
+      if (type === "college") {
+        return "Finish Fast Sale";
+      }
+      // For school fast sale, show "Finish Sale"
+      return "Finish Sale";
+    }
+    // For regular sale - both college and school show "Finish Sale"
+    return "Finish Sale";
+  };
+
+  const buttonText = getButtonText();
   const [activeTab, setActiveTab] = useState("cash");
   const [paymentFormData, setPaymentFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,86 +61,160 @@ const PaymentPopup = ({
       let response;
 
       if (type === "college") {
-        // Log form data before mapping
-        console.log('🔍 ===== COLLEGE FORM DATA BEFORE MAPPING (PaymentPopup) =====');
-        console.log('collegeFormData:', collegeFormData);
-        console.log('collegeAcademicFormData:', collegeAcademicFormData);
-        console.log('paymentFormData:', paymentFormData);
-        console.log('detailsObject:', detailsObject);
-        console.log('activeTab:', activeTab);
-        console.log('==============================================================');
-        
-        // Map college form data to API payload
-        payload = mapCollegeFormDataToPayload(
-          collegeFormData || {},
-          collegeAcademicFormData || {},
-          paymentFormData,
-          detailsObject || {},
-          activeTab
-        );
+        // Check if it's regular sale (application sale) or confirmation
+        if (saleType === "regular") {
+          // Map college application sale form data to API payload
+          console.log('🔍 ===== COLLEGE APPLICATION SALE DATA BEFORE MAPPING (PaymentPopup) =====');
+          console.log('collegeFormData (full form):', collegeFormData);
+          console.log('paymentFormData:', paymentFormData);
+          console.log('detailsObject:', detailsObject);
+          console.log('activeTab:', activeTab);
+          console.log('==============================================================');
+          
+          payload = mapCollegeApplicationSaleToPayload(
+            collegeFormData || {},
+            paymentFormData,
+            detailsObject || {},
+            activeTab
+          );
 
-        // Log the complete payload object to console in a readable format
-        console.log("===========================================");
-        console.log("📤 SUBMITTING COLLEGE PAYLOAD TO BACKEND");
-        console.log("===========================================");
-        console.log("📋 Complete Payload Object:");
-        console.log(payload);
-        console.log("===========================================");
-        console.log("📄 Payload as JSON (formatted):");
-        console.log(JSON.stringify(payload, null, 2));
-        console.log("===========================================");
-        console.log("📊 Payload Summary:");
-        console.log("  - studAdmsNo:", payload.studAdmsNo);
-        console.log("  - academicYearId:", payload.academicYearId);
-        console.log("  - joiningClassId:", payload.joiningClassId);
-        console.log("  - branchId:", payload.branchId);
-        console.log("  - studentTypeId:", payload.studentTypeId);
-        console.log("  - cityId:", payload.cityId);
-        console.log("  - courseNameId:", payload.courseNameId);
-        console.log("  - Concessions count:", payload.concessions?.length || 0);
-        console.log("  - Payment Mode ID:", payload.paymentDetails?.paymentModeId);
-        console.log("  - Payment Amount:", payload.paymentDetails?.amount);
-        console.log("===========================================");
+          // Log the complete payload object to console in a readable format
+          console.log("===========================================");
+          console.log("📤 SUBMITTING COLLEGE APPLICATION SALE PAYLOAD TO BACKEND");
+          console.log("===========================================");
+          console.log("📋 Complete Payload Object:");
+          console.log(payload);
+          console.log("===========================================");
+          console.log("📄 Payload as JSON (formatted):");
+          console.log(JSON.stringify(payload, null, 2));
+          console.log("===========================================");
+          console.log("📊 Payload Summary:");
+          console.log("  - studAdmsNo:", payload.studAdmsNo);
+          console.log("  - firstName:", payload.firstName);
+          console.log("  - lastName:", payload.lastName);
+          console.log("  - academicYearId:", payload.academicYearId);
+          console.log("  - branchId:", payload.branchId);
+          console.log("  - classId:", payload.classId);
+          console.log("  - Siblings count:", payload.siblings?.length || 0);
+          console.log("  - Concessions count:", payload.concessions?.length || 0);
+          console.log("  - Payment Mode ID:", payload.paymentDetails?.paymentModeId);
+          console.log("  - Payment Amount:", payload.paymentDetails?.amount);
+          console.log("===========================================");
 
-        // Submit to college API
-        response = await submitCollegeApplicationConfirmation(payload);
+          // Submit to college application sale API
+          response = await submitCollegeApplicationSale(payload);
+        } else {
+          // Map college confirmation form data to API payload
+          console.log('🔍 ===== COLLEGE CONFIRMATION DATA BEFORE MAPPING (PaymentPopup) =====');
+          console.log('collegeFormData:', collegeFormData);
+          console.log('collegeAcademicFormData:', collegeAcademicFormData);
+          console.log('paymentFormData:', paymentFormData);
+          console.log('detailsObject:', detailsObject);
+          console.log('activeTab:', activeTab);
+          console.log('==============================================================');
+          
+          payload = mapCollegeFormDataToPayload(
+            collegeFormData || {},
+            collegeAcademicFormData || {},
+            paymentFormData,
+            detailsObject || {},
+            activeTab
+          );
+
+          // Log the complete payload object to console in a readable format
+          console.log("===========================================");
+          console.log("📤 SUBMITTING COLLEGE CONFIRMATION PAYLOAD TO BACKEND");
+          console.log("===========================================");
+          console.log("📋 Complete Payload Object:");
+          console.log(payload);
+          console.log("===========================================");
+          console.log("📄 Payload as JSON (formatted):");
+          console.log(JSON.stringify(payload, null, 2));
+          console.log("===========================================");
+          console.log("📊 Payload Summary:");
+          console.log("  - studAdmsNo:", payload.studAdmsNo);
+          console.log("  - academicYearId:", payload.academicYearId);
+          console.log("  - joiningClassId:", payload.joiningClassId);
+          console.log("  - branchId:", payload.branchId);
+          console.log("  - studentTypeId:", payload.studentTypeId);
+          console.log("  - cityId:", payload.cityId);
+          console.log("  - courseNameId:", payload.courseNameId);
+          console.log("  - Concessions count:", payload.concessions?.length || 0);
+          console.log("  - Payment Mode ID:", payload.paymentDetails?.paymentModeId);
+          console.log("  - Payment Amount:", payload.paymentDetails?.amount);
+          console.log("===========================================");
+
+          // Submit to college confirmation API
+          response = await submitCollegeApplicationConfirmation(payload);
+        }
       } else {
-        // Map school form data to API payload
-        payload = mapFormDataToPayload(
-          schoolFormData || {},
-          siblings || [],
-          paymentFormData,
-          detailsObject || {},
-          activeTab
-        );
+        // Check if it's fast sale
+        if (saleType === "fast") {
+          // Map school form data to fast sale API payload
+          payload = mapFormDataToFastSalePayload(
+            schoolFormData || {},
+            paymentFormData,
+            detailsObject || {},
+            activeTab
+          );
 
-        // Log the complete payload object to console in a readable format
-        console.log("===========================================");
-        console.log("📤 SUBMITTING SCHOOL PAYLOAD TO BACKEND");
-        console.log("===========================================");
-        console.log("📋 Complete Payload Object:");
-        console.log(payload);
-        console.log("===========================================");
-        console.log("📄 Payload as JSON (formatted):");
-        console.log(JSON.stringify(payload, null, 2));
-        console.log("===========================================");
-        console.log("📊 Payload Summary:");
-        console.log("  - studAdmsNo:", payload.studAdmsNo);
-        console.log("  - foodTypeId:", payload.foodTypeId);
-        console.log("  - bloodGroupId:", payload.bloodGroupId);
-        console.log("  - casteId:", payload.casteId);
-        console.log("  - religionId:", payload.religionId);
-        console.log("  - orientationId:", payload.orientationId);
-        console.log("  - Parents count:", payload.parents?.length || 0);
-        console.log("  - Siblings count:", payload.siblings?.length || 0);
-        console.log("  - Languages count:", payload.languages?.length || 0);
-        console.log("  - Concessions count:", payload.concessions?.length || 0);
-        console.log("  - Payment Mode ID:", payload.paymentDetails?.paymentModeId);
-        console.log("  - Payment Amount:", payload.paymentDetails?.amount);
-        console.log("===========================================");
+          // Log the complete payload object to console in a readable format
+          console.log("===========================================");
+          console.log("📤 SUBMITTING SCHOOL FAST SALE PAYLOAD TO BACKEND");
+          console.log("===========================================");
+          console.log("📋 Complete Payload Object:");
+          console.log(payload);
+          console.log("===========================================");
+          console.log("📄 Payload as JSON (formatted):");
+          console.log(JSON.stringify(payload, null, 2));
+          console.log("===========================================");
+          console.log("📊 Payload Summary:");
+          console.log("  - studAdmsNo:", payload.studAdmsNo);
+          console.log("  - firstName:", payload.firstName);
+          console.log("  - academicYearId:", payload.academicYearId);
+          console.log("  - branchId:", payload.branchId);
+          console.log("  - classId:", payload.classId);
+          console.log("  - Payment Mode ID:", payload.paymentDetails?.paymentModeId);
+          console.log("  - Payment Amount:", payload.paymentDetails?.amount);
+          console.log("===========================================");
 
-        // Submit to school API
-        response = await submitSchoolApplicationSale(payload);
+          // Submit to fast sale API
+          response = await submitSchoolFastSale(payload);
+        } else {
+          // Map school form data to create API payload (simpler structure)
+          payload = mapSchoolApplicationSaleToPayload(
+            schoolFormData || {},
+            paymentFormData,
+            detailsObject || {},
+            activeTab
+          );
+
+          // Log the complete payload object to console in a readable format
+          console.log("===========================================");
+          console.log("📤 SUBMITTING SCHOOL APPLICATION SALE CREATE PAYLOAD TO BACKEND");
+          console.log("===========================================");
+          console.log("📋 Complete Payload Object:");
+          console.log(payload);
+          console.log("===========================================");
+          console.log("📄 Payload as JSON (formatted):");
+          console.log(JSON.stringify(payload, null, 2));
+          console.log("===========================================");
+          console.log("📊 Payload Summary:");
+          console.log("  - studAdmsNo:", payload.studAdmsNo);
+          console.log("  - firstName:", payload.firstName);
+          console.log("  - lastName:", payload.lastName);
+          console.log("  - genderId:", payload.genderId);
+          console.log("  - academicYearId:", payload.academicYearId);
+          console.log("  - branchId:", payload.branchId);
+          console.log("  - classId:", payload.classId);
+          console.log("  - orientationId:", payload.orientationId);
+          console.log("  - Payment Mode ID:", payload.paymentDetails?.paymentModeId);
+          console.log("  - Payment Amount:", payload.paymentDetails?.amount);
+          console.log("===========================================");
+
+          // Submit to school application sale create API
+          response = await submitSchoolApplicationSaleCreate(payload);
+        }
       }
       
       console.log("✅ Submission successful:", response);
@@ -178,7 +268,7 @@ const PaymentPopup = ({
               <DDForms formData={paymentFormData} onChange={handleFormChange} />
               <div className={styles.footer}>
                 <Button
-                  buttonname={isSubmitting ? "Submitting..." : "Finish Sale & Confirmation"}
+                  buttonname={isSubmitting ? "Submitting..." : buttonText}
                   righticon={
                     <svg
                       width="20"
@@ -209,7 +299,7 @@ const PaymentPopup = ({
               <ChequeForms formData={paymentFormData} onChange={handleFormChange} />
               <div className={styles.footer}>
                 <Button
-                  buttonname={isSubmitting ? "Submitting..." : "Finish Sale & Confirmation"}
+                  buttonname={isSubmitting ? "Submitting..." : buttonText}
                   righticon={
                     <svg
                       width="20"
@@ -243,7 +333,7 @@ const PaymentPopup = ({
         {activeTab === "cash" && (
           <div className={styles.footer}>
             <Button
-              buttonname={isSubmitting ? "Submitting..." : "Finish Sale & Confirmation"}
+              buttonname={isSubmitting ? "Submitting..." : buttonText}
               righticon={
                 <svg
                   width="20"
@@ -271,7 +361,7 @@ const PaymentPopup = ({
         {activeTab === "card" && (
           <div className={styles.footer}>
             <Button
-              buttonname={isSubmitting ? "Submitting..." : "Finish Sale & Confirmation"}
+              buttonname={isSubmitting ? "Submitting..." : buttonText}
               righticon={
                 <svg
                   width="20"

@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./Gender.module.css";
 
 const Gender = ({ name, label = "Gender", value, onChange }) => {
 
   // component-level selected state
   const [selected, setSelected] = useState(value || "");
+
+  // Sync selected state when value prop changes (controlled component)
+  useEffect(() => {
+    setSelected(value || "");
+  }, [value]);
 
   const genderOptions = [
     { id: 1, label: "Male", value: "MALE" },
@@ -13,7 +18,11 @@ const Gender = ({ name, label = "Gender", value, onChange }) => {
 
   const handleSelect = (val) => {
     setSelected(val);
-    onChange && onChange(name, val); // send back to parent if needed
+    // Call onChange with event-like object for Formik compatibility
+    // Formik expects: onChange(e) where e.target.value contains the value
+    if (onChange) {
+      onChange({ target: { name, value: val } });
+    }
   };
 
   return (

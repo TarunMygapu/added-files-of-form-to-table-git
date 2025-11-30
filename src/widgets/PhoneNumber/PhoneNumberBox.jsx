@@ -8,85 +8,75 @@ const phonenumberIcon = (
 </svg>
 
 )
-
-const PhoneNumberBox =({ 
-    // 💡 FIX: Set a default value for onChange to prevent it from being undefined
+const PhoneNumberBox = ({ 
     onChange = () => {}, 
     value = '', 
+    name = "",                 // <-- important
     type = "text", 
     disabled = false, 
-    required = false, 
     readOnly = false 
 }) => {
 
     const handlePhoneChange = (e) => {
         const rawValue = e.target.value;
-        
-        // 1. Filter: Remove all non-digit characters
+        console.log("Raw input:", rawValue);
+
         const digitsOnly = rawValue.replace(/[^0-9]/g, '');
-        
+        console.log("Digits only:", digitsOnly);
+
         let finalValue = digitsOnly;
-        
-        // --- STARTING DIGIT VALIDATION (Must be 6 or above) ---
-        if (digitsOnly.length === 1) {
-            // Check if the first digit is less than '6'
-            if (digitsOnly < '6') {
-                // Prevent the digit from being added if it's 0-5
-                finalValue = ''; 
-            }
+
+        if (digitsOnly.length === 1 && digitsOnly < '6') {
+            finalValue = "";
         }
-        
-        // 2. Length Check: Restrict to exactly 10 digits
+
         finalValue = finalValue.substring(0, 10);
-        
-        // Create a synthetic event object for consistency
+
+        console.log("Final sanitized value:", finalValue);
+
         const syntheticEvent = {
             target: {
-                name: "phoneNumber",
+                name,          // <-- dynamic field name
                 value: finalValue,
             },
         };
 
-        // Call the parent's onChange handler (now safe because of the default value)
+        console.log("Sending synthetic event:", syntheticEvent);
+
         onChange(syntheticEvent);
     };
 
-    // Determine the validation state for the error message
-    const hasValue = value.length > 0;
+    const hasValue = value?.length > 0;
     const isInvalidLength = hasValue && value.length !== 10;
-    
-    // Check if the first digit rule is violated for display 
-    const isInvalidStart = hasValue && value.length >= 1 && value[0] < '6';
-
+    const isInvalidStart = hasValue && value[0] < '6';
 
     return (
         <div className={styles.phoneNumberBox_wrapper}>
-            <label htmlFor="phoneNumber" className={styles.label_container}>
+            <label htmlFor={name} className={styles.label_container}>
                 Mobile Number
-                {/* {required && <Asterisk style={{ marginLeft: "4px" }} />} */}
             </label>
+
             <input
-                type={type} 
-                id="phoneNumber"
-                name="phoneNumber"
+                type={type}
+                id={name}
+                name={name}           // <-- correct
                 placeholder="Enter Mobile Number"
                 value={value}
                 onChange={handlePhoneChange}
                 className={styles.phoneNumberBox}
                 disabled={disabled}
                 readOnly={readOnly}
-                inputMode="numeric" 
-                maxLength={10} 
+                inputMode="numeric"
+                maxLength={10}
             />
+
             <span className={styles.phonenumberIcon}>{phonenumberIcon}</span>
-            
-            {/* Display error messages */}
+
             {(isInvalidLength || isInvalidStart) && (
                 <p className={styles.validation_error}>
-                    {isInvalidStart ? 
-                        "Phone number must start with 6, 7, 8, or 9." :
-                        "Phone number must be exactly 10 digits."
-                    }
+                    {isInvalidStart
+                        ? "Phone number must start with 6, 7, 8, or 9."
+                        : "Phone number must be exactly 10 digits."}
                 </p>
             )}
         </div>

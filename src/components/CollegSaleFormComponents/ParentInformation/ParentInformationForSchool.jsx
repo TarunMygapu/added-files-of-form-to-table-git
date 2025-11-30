@@ -41,7 +41,7 @@ const ParentInformationForSchool = () => {
     ? "Add Another Sibling"
     : "Add Sibling";
 
-  const buttonWidth = showSibling ? "240px" : "194px";
+    const buttonWidth = showSibling ? "240px" : "194px";
 
   return (
     <div className={styles.clgAppSalePersonalInforWrapper}>

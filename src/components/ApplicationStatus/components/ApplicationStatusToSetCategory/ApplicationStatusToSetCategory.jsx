@@ -11,7 +11,7 @@ const ApplicationStatus = () => {
   // Set to 'school' by default
   useEffect(() => {
     // Always set to 'school' on component mount
-    localStorage.setItem('category', 'college');
+    localStorage.setItem('category', 'school');
   }, []);
   
   const category = localStorage.getItem('category') || 'school'; // Default to school
@@ -241,6 +241,7 @@ const ApplicationStatus = () => {
           setSearch={setSearch}
           navigate={navigate}
           handleNavigateToSalePage={handleNavigateToSalePage}
+          employeeCampusId={4700} // TODO: Replace with actual employeeCampusId from login/session (e.g., localStorage.getItem('employeeCampusId') or from auth context)
         />
       </div>
     </div>
